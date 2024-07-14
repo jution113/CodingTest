@@ -1,43 +1,46 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
     static int n;
-    static String input;
+    static String line;
     static int[] dp;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         n = Integer.parseInt(br.readLine());
-        input = br.readLine();
-        dp = new int[n];
-        Arrays.fill(dp, -1);
-        dp[0] = 0;
+        line = br.readLine();
 
-        for (int i = 0; i < n; i++) {
-            if (dp[i] == -1) continue;
-            switch (input.charAt(i)) {
+        dp = new int[n];
+        for(int i = 1; i < n; i++) {
+            dp[i] = -1;
+        }
+
+        for(int i = 0; i < n; i++) {
+            if(dp[i] == -1) continue;
+
+            switch(line.charAt(i)) {
                 case 'B':
-                    make(i, 'O');
+                    solve(i, 'O');
                     break;
                 case 'O':
-                    make(i, 'J');
+                    solve(i, 'J');
                     break;
                 default:
-                    make(i, 'B');
+                    solve(i, 'B');
+                    break;
             }
         }
-        
-        System.out.println(dp[n - 1] == Integer.MAX_VALUE ? -1 : dp[n - 1]);
+
+        System.out.println(dp[n - 1]);
     }
 
-    static void make(int i, char next) {
-        for (int j = i + 1; j < n; j++) {
-            if (input.charAt(j) == next) {
-                if (dp[j] == -1) {
-                    dp[j] = dp[i] + (int) Math.pow(j - i, 2);
+    static void solve(int i, char next) {
+        for(int j = i + 1; j < n; j++) {
+            if(line.charAt(j) == next) {
+                if(dp[j] == -1) {
+                    dp[j] = (j - i) * (j - i) + dp[i];
                 } else {
-                    dp[j] = Math.min(dp[j], dp[i] + (int) Math.pow(j - i, 2));
+                    dp[j] = Math.min((j - i) * (j - i) + dp[i], dp[j]);
                 }
             }
         }
