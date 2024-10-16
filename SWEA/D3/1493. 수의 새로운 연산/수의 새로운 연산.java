@@ -8,11 +8,18 @@ class Solution
         Map<Integer, String> findByNumMap = new HashMap<> ();
         Map<String, Integer> findByPosMap = new HashMap<> ();
         
+        int maxY = 1;
+        int maxNum = 1;
+        while(maxNum < 10000) {
+            maxNum = (maxY * (maxY + 1)) / 2;
+            maxY++;
+        }
+        
         int y = 1;
         int x = 1;
         int num = 1;
         
-        while(num <= 1000000) {
+        while(y <= 2 * maxY) {
             int nextY = y;
             while(nextY > 0) {
                 String pos = nextY + " " + x;
