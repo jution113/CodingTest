@@ -12,13 +12,13 @@ public class Main {
             int T = Integer.parseInt(st.nextToken());
             int P = Integer.parseInt(st.nextToken());
 
+            if (i > 0 && day[i - 1] > day[i])
+                day[i] = day[i - 1];
+            
             int targetDay = i + T - 1;
             int expectedPay = i == 0 ? P : day[i - 1] + P;
             if (targetDay < N && expectedPay > day[targetDay])
-                    day[targetDay] = expectedPay;
-
-            if (i > 0 && day[i - 1] > day[i])
-                day[i] = day[i - 1];
+                    day[targetDay] = expectedPay;   
         }
         
         System.out.println(day[N - 1]);
