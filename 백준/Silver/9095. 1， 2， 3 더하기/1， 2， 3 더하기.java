@@ -1,36 +1,23 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
-    static int[] dp;
+    static int n;
+    static int[] arr = new int[12];
+    static StringBuilder sb = new StringBuilder();
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine());
-        int[] numArr = new int[T];
-        int maxNum = 0;
-        for(int i = 0; i< T; i++) {
-            numArr[i] = Integer.parseInt(br.readLine());
-            if(maxNum < numArr[i]) maxNum = numArr[i];
+        arr[1] = 1;
+        arr[2] = 2;
+        arr[3] = 4;
+        for (int i = 4; i <= 11; i++) {
+            arr[i] = arr[i - 1] + arr[i - 2] + arr[i - 3];
         }
-        dp = new int[maxNum + 1];
-
-        go(1, maxNum);
-        go(2, maxNum);
-        go(3, maxNum);
-
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < T - 1; i++) {
-            sb.append(dp[numArr[i]] + "\n");
+        n = Integer.parseInt(br.readLine());
+        for (int i = 0; i < n; i++) {
+            sb.append(arr[Integer.parseInt(br.readLine())]).append("\n");
         }
-        sb.append(dp[numArr[T - 1]]);
-
-        System.out.println(sb);
-    }
-    static void go(int curNum, int targetNum) {
-        if(curNum > targetNum) return;
-        dp[curNum]++;
-        go(curNum + 1, targetNum);
-        go(curNum + 2, targetNum);
-        go(curNum + 3, targetNum);
+        System.out.print(sb);
     }
 }
