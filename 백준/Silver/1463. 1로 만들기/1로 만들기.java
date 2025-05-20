@@ -2,50 +2,58 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int minCnt = Integer.MAX_VALUE;
+	static int N;
+	static Queue<Obj> q = new LinkedList<> ();
+	static boolean[] visited;
+	static int min = Integer.MAX_VALUE;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+	static class Obj {
+		int num;
+		int depth;
 
-        int[] dp = new int[N];
+		public Obj(int num, int depth) {
+			this.num = num;
+			this.depth = depth;
+		}
+	}
 
-        recur(N, 0, dp);
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		visited = new boolean[N + 1];
+		q.offer(new Obj(N, 0));
+		visited[N] = true;
 
-        System.out.println(minCnt);
-    }
+		while (!q.isEmpty()) {
+			Obj obj = q.poll();
 
-    static void recur(int n, int cnt, int[] dp) {
-        if (n == 1) {
-            if (cnt < minCnt) {
-                minCnt = cnt;
-//                System.out.println(cnt + " : " + n);
-            }
-            return;
-        }
+			if (obj.num == 1) {
+				min = Math.min(min, obj.depth);
+				break;
+			}
+			
+			for (int i = 3; i >= 1; i--) {
+				int next = 0;
+				switch(i) {
+					case 1:
+						next = obj.num - 1;
+						break;
+					case 2:
+						if (obj.num % 2 != 0) continue;
+						next = obj.num / 2;
+						break;
+					case 3:
+						if (obj.num % 3 != 0) continue;
+						next = obj.num /3;
+						break;
+				}
+				if (!visited[next]) {
+					visited[next] = true;
+					q.offer(new Obj(next, obj.depth + 1));
+				}
+			}
+		}
 
-//        System.out.println(cnt + " : " + n);
-
-        if (n % 3 == 0) {
-            int q1 = n / 3;
-            if (dp[q1] == 0 || cnt < dp[q1]) {
-                dp[q1] = cnt;
-                recur(q1, cnt + 1, dp);
-            }
-        }
-
-        if(n % 2 == 0) {
-            int q1 = n / 2;
-            if (dp[q1] == 0 || cnt < dp[q1]) {
-                dp[q1] = cnt;
-                recur(q1, cnt + 1, dp);
-            }
-        }
-
-        int q3 = n - 1;
-        if (dp[q3] == 0 || cnt < dp[q3]) {
-            dp[q3] = cnt;
-            recur(q3, cnt + 1, dp);
-        }
-    }
+		System.out.println(min);
+	}
 }
