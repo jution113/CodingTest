@@ -1,22 +1,21 @@
 import java.util.*;
+import java.io.*;
 
 class Solution {
     boolean solution(String s) {
-        Stack<Character> stack = new Stack<> ();
+        Stack st = new Stack();
         
-        for(int i = 0; i < s.length(); i++) {
-            if(stack.size() == 0) {
-                stack.push(s.charAt(i));
-                continue;
-            }
-                
-            if(stack.peek() == '(' && s.charAt(i) == ')') {
-                stack.pop();
-            } else {
-                stack.push(s.charAt(i));                
+        for (char c : s.toCharArray()) {
+            if (c == '(')
+                st.push(1);
+            else {
+                if (st.empty())
+                    return false;
+                else
+                    st.pop();
             }
         }
-
-        return stack.size() == 0;
+        
+        return st.isEmpty();
     }
 }
