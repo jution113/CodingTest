@@ -3,19 +3,17 @@ import java.util.*;
 
 class Solution {
     public int solution(int n) {
-        int answer = 1;
+        int answer = 0;
         int start = 1;
-        int end = 2;
-        int sum = start + end;
+        int end = 1;
+        int sum = 1;
         
-        if (n < 3)
-            return 1;
-        
-        // n의 절반까지만 반복
-        while (start <= n / 2) {
-            if (sum == n)
-                    answer++;
-            if (sum <= n) {
+        while (start <= n) {
+            if (sum == n) {
+                answer++;
+                sum -= start;
+                start++;
+            } else if (sum < n) {
                 end++;
                 sum += end;
             } else {
