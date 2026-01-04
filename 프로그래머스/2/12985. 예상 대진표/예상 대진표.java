@@ -1,22 +1,19 @@
-import java.util.*;
-
 class Solution
 {
     public int solution(int n, int a, int b)
     {
-        int count = 1;
-        if(a % 2 == 1) a++; 
-        if(b % 2 == 1) b++; 
+        int roundCnt = 1;
         
-        while(Math.abs(a - b) > 1) {
-            count++;
-            a /= 2;
-            b /= 2;
-            
-            if(a % 2 == 1) a++; 
-            if(b % 2 == 1) b++; 
+        while (!isMeet(a, b)) {
+            a = a % 2 == 0 ? a / 2 : (a + 1) / 2;
+            b = b % 2 == 0 ? b / 2 : (b + 1) / 2;
+            roundCnt++;
         }
         
-        return count;
+        return roundCnt;
+    }
+    
+    private boolean isMeet(int a, int b) {
+        return a % 2 == 0 ? a == b + 1 : a == b - 1;
     }
 }
