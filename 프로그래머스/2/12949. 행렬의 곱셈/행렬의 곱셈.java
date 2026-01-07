@@ -1,11 +1,13 @@
 class Solution {
     public int[][] solution(int[][] arr1, int[][] arr2) {
-        int[][] answer = new int[arr1.length][arr2[0].length];
+        int rowLen = arr1.length;
+        int colLen = arr2[0].length;
+        int[][] answer = new int[rowLen][colLen];
         
-        for(int i = 0; i < answer.length; i++) {
-            for(int j = 0; j < answer[0].length; j++) {
-                for(int k = 0; k < arr1[0].length; k++) {
-                    answer[i][j] += arr1[i][k] * arr2[k][j];
+        for (int row = 0; row < rowLen; row++) {
+            for (int col = 0; col < colLen; col++) {
+                for (int comLen = 0; comLen < arr1[0].length; comLen++) {
+                    answer[row][col] += arr1[row][comLen] * arr2[comLen][col];
                 }
             }
         }
