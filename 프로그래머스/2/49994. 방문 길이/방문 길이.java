@@ -1,44 +1,69 @@
 import java.util.*;
 
 class Solution {
+    static int[] dirY = {1, 0, -1, 0};
+    static int[] dirX = {0, 1, 0, -1};
+    static int[][] map = new int[5][5];
+    
     public int solution(String dirs) {
-        int x = 0;
+        Set<String> pathRecord = new HashSet<> ();
         int y = 0;
+        int x = 0;
+        int answer = 0;
         
-        Set<String> hashSet = new HashSet<> ();
-        
-        for(int i = 0; i < dirs.length(); i++) {
-            int nextX = x;
-            int nextY = y;
-            
-            switch(dirs.charAt(i)) {
-                case('U'):
-                    nextY++;
+        for (char dir : dirs.toCharArray()) {
+            int i;
+
+            switch(dir) {
+                case 'U':
+                    i = 0;
                     break;
-                case('D'):
-                    nextY--;
+                case 'R':
+                    i = 1;
                     break;
-                case('R'):
-                    nextX++;
+                case 'D':
+                    i = 2;
                     break;
                 default:
-                    nextX--;
+                    i = 3;
             }
             
-            if(nextX < -5 || 5 < nextX || nextY < -5 || 5 < nextY) continue;
+            int nextY = y + dirY[i];
+            int nextX = x + dirX[i];
             
-            String startPos = String.valueOf(x) + String.valueOf(y);
-            String endPos = String.valueOf(nextX) + String.valueOf(nextY);
+            if (nextY < -5)
+                nextY = -5;
+            if (nextY > 5)
+                nextY = 5;
+            if (nextX < -5)
+                nextX = -5;
+            if (nextX > 5)
+                nextX = 5;
             
-            hashSet.add(startPos + endPos);
-            hashSet.add(endPos + startPos);
+            StringBuilder keyFowardPart = new StringBuilder();
+            keyFowardPart.append(y);
+            keyFowardPart.append(x);
+            
+            StringBuilder keyBackPart = new StringBuilder();
+            keyBackPart.append(nextY);
+            keyBackPart.append(nextX);
+            
+            if (keyFowardPart.toString().equals(keyBackPart.toString())) {
+                continue;
+            }
+            
+            String key1 = keyFowardPart.toString() + keyBackPart.toString();
+            String key2 = keyBackPart.toString() + keyFowardPart.toString();
+            
+            if (!pathRecord.contains(key1) && !pathRecord.contains(key2))
+                answer++;
+            pathRecord.add(key1);
+            pathRecord.add(key2);
             
             x = nextX;
-            y = nextY;
+            y = nextY;   
         }
         
-        return hashSet.size() / 2;
+        return answer;
     }
-    
-    
 }
