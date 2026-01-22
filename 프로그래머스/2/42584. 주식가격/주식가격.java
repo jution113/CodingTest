@@ -2,27 +2,23 @@ import java.util.*;
 
 class Solution {
     public int[] solution(int[] prices) {
-        int[] answer = new int[prices.length];
+        int n = prices.length;
+        int[] answer = new int[n];
+        ArrayDeque<Integer> stack = new ArrayDeque<> ();
         
-        Stack<Integer> stack = new Stack<> ();
-        
-        for(int i = 0; i < prices.length; i++) {
-            if(stack.isEmpty()) {
-                stack.push(i);
-                continue;
-            }
+        for (int curT = 0; curT < n; curT++) {
+            int curP = prices[curT];
             
-            while(!stack.isEmpty() && prices[stack.peek()] > prices[i]) {
-                int j = stack.pop();
-                answer[j] = i - j;
+            while (!stack.isEmpty() && prices[stack.peek()] > curP) {
+                int prevT = stack.pop();
+                answer[prevT] = curT - prevT;
             }
-            
-            stack.push(i);
+            stack.push(curT);
         }
         
-        while(!stack.isEmpty()) {
-            int i = stack.pop();
-            answer[i] = prices.length - 1 - i;
+        while (!stack.isEmpty()) {
+            int prevT = stack.pop();
+            answer[prevT] = n - 1 - prevT;
         }
         
         return answer;
