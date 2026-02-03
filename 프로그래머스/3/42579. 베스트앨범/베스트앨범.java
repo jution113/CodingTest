@@ -1,42 +1,83 @@
 import java.util.*;
-import java.util.stream.*;
 
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        // 두번째 버전
-        // 장르별 조회수
-        Map<String, Integer> genrePlayInfo = new HashMap<> ();
-        // 장르별 곡의 고유 번호와 조회수
-        Map<String, List<Integer[]>> musicInfoByGenre = new HashMap<> ();
-
-        for(int i = 0; i < genres.length; i++) {
+        HashMap<String, Long> genrePlaySumMap = new HashMap<> ();
+        HashMap<String, PriorityQueue<Music>> musicMap = new HashMap<> ();
+        
+        for (int i = 0; i < genres.length; i++) {
             String genre = genres[i];
             int play = plays[i];
-
-            if(!genrePlayInfo.containsKey(genre)) {
-                genrePlayInfo.put(genre, 0);
-                musicInfoByGenre.put(genre, new ArrayList<> ());
+            long sum = 0;
+            PriorityQueue<Music> pq = new PriorityQueue<> ();
+            
+            if (genrePlaySumMap.containsKey(genre)) {
+                sum = genrePlaySumMap.get(genre);
+                pq = musicMap.get(genre);
             }
-
-            genrePlayInfo.put(genre, genrePlayInfo.get(genre) + play);
-            musicInfoByGenre.get(genre).add(new Integer[] {i, play});
+            sum += play;
+            pq.offer(new Music(i, play));
+            genrePlaySumMap.put(genre, sum);
+            musicMap.put(genre, pq);
         }
-
-        List<String> genreSortedByPlay =  genrePlayInfo.entrySet().stream()
-                .sorted((entrySet1, entrySet2) -> Integer.compare(entrySet2.getValue(), entrySet1.getValue()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        List<Integer> answer = new ArrayList<> ();
-
-        genreSortedByPlay.stream()
-                .forEach(genre -> {
-                    musicInfoByGenre.get(genre).stream()
-                            .sorted((musicInfo1, musicInfo2) -> Integer.compare(musicInfo2[1], musicInfo1[1]))
-                            .limit(2)
-                            .forEach(music -> answer.add(music[0]));
-                });
-
-        return answer.stream().mapToInt(i -> i.intValue()).toArray();
+        
+        PriorityQueue<Genre> genrePq = new PriorityQueue<> ();
+        for (Map.Entry entrySet : genrePlaySumMap.entrySet()) {
+            genrePq.offer(new Genre((String) entrySet.getKey(), (long) entrySet.getValue()));
+        }
+        
+        ArrayList<Integer> answerList = new ArrayList<> ();
+        while (!genrePq.isEmpty()) {
+            Genre genre = genrePq.poll();
+            PriorityQueue<Music> musicPq = musicMap.get(genre.name);
+            
+            int pollCnt = 0;
+            while (!musicPq.isEmpty() && pollCnt < 2) {
+                answerList.add(musicPq.poll().idx);
+                pollCnt++;
+            }
+        }
+        
+        int[] answer = new int[answerList.size()];
+        for (int i = 0; i < answerList.size(); i++) {
+            answer[i] = answerList.get(i);
+        }
+        
+        return answer;
+    }
+    
+    static class Genre implements Comparable<Genre> {
+        String name;
+        long playSum;
+        
+        public Genre(String name, long playSum) {
+            this.name = name;
+            this.playSum = playSum;
+        }
+        
+        @Override
+        public int compareTo(Genre other) {
+            if (other.playSum > this.playSum)
+                return 1;
+            return -1;
+        }
+        
+    }
+    
+    static class Music implements Comparable<Music> {
+        int idx;
+        int play;
+        
+        public Music(int idx, int play) {
+            this.idx = idx;
+            this.play = play;
+        }
+        
+        @Override
+        public int compareTo(Music other) {
+            if (this.play == other.play)
+                return this.idx - other.idx;
+            return other.play - this.play;
+        }
     }
 }
