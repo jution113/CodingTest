@@ -11,28 +11,18 @@ class Solution {
             pq.offer(new Time(in, out));
         }
         
-        ArrayList<Integer> enterableTimes = new ArrayList<> ();
+        PriorityQueue<Integer> roomPq = new PriorityQueue<> ();
         while (!pq.isEmpty()) {
             Time time = pq.poll();
-            boolean isAdd = false;
             
-            for (int i = 0; i <  enterableTimes.size(); i++) {
-                if (time.in >= enterableTimes.get(i)) {
-                    enterableTimes.set(i, time.out + 10);
-                    isAdd = true;
-                    break;
-                }
+            if (!roomPq.isEmpty() && roomPq.peek() <= time.in) {
+                roomPq.poll();
             }
             
-            if (!isAdd) {
-                enterableTimes.add(time.out + 10);
-            }
-            
-            enterableTimes.sort((a, b) -> a - b);
-            
+            roomPq.offer(time.out + 10);
         }
         
-        return enterableTimes.size();
+        return roomPq.size();
     }
     
     static class Time implements Comparable<Time>{
