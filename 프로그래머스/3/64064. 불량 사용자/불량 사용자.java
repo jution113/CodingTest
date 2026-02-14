@@ -1,38 +1,40 @@
 import java.util.*;
 
 class Solution {
-    static HashSet<HashSet<String>> answer;
+    static HashSet<HashSet<String>> totalIdSet;
     public int solution(String[] userIdArr, String[] bannedIdArr) {
-        answer = new HashSet<> ();
+        totalIdSet = new HashSet<> ();
+        
         dfs(0, userIdArr, bannedIdArr, new HashSet<> ());
         
-        return answer.size();
+        return totalIdSet.size();
     }
     
     private void dfs(int depth, String[] userIdArr, String[] bannedIdArr, HashSet<String> idSet) {
         if (depth == bannedIdArr.length) {
-            if (!answer.contains(idSet))
-                answer.add(new HashSet<> (idSet));
-            return ;
+            totalIdSet.add(new HashSet<> (idSet));
+            return;
         }
         
+        String bannedId = bannedIdArr[depth];
         for (int i = 0; i < userIdArr.length; i++) {
-            if (validateId(userIdArr[i], bannedIdArr[depth]) && !idSet.contains(userIdArr[i])) {
-                idSet.add(userIdArr[i]);
+            String userId = userIdArr[i];
+            
+            if (validateId(bannedId, userId) && !idSet.contains(userId)) {
+                idSet.add(userId);
                 dfs(depth + 1, userIdArr, bannedIdArr, idSet);
-                idSet.remove(userIdArr[i]);
+                idSet.remove(userId);
             }
         }
     }
     
-    private boolean validateId(String userId, String bannedId) {
-        if (userId.length() != bannedId.length())
+    private boolean validateId(String bannedId, String userId) {
+        if (bannedId.length() != userId.length())
             return false;
         
         for (int i = 0; i < bannedId.length(); i++) {
             if (bannedId.charAt(i) != '*' && bannedId.charAt(i) != userId.charAt(i))
                 return false;
-        
         }
         return true;
     }
