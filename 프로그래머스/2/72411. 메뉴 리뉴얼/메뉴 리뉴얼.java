@@ -1,50 +1,61 @@
 import java.util.*;
 
 class Solution {
-    static Map<String, Integer> hashMap = new HashMap<> ();
+    static HashMap<String, Integer> cntByCourse;
+    static HashMap<Integer, Integer> maxCntByCourseLength;
     
-    public String[] solution(String[] orders, int[] course) {
-        Set<String> hashSet = new HashSet<> ();
+    public String[] solution(String[] orders, int[] courseLengths) {
+        cntByCourse = new HashMap<> ();
+        maxCntByCourseLength = new HashMap<> ();
         
-        for(int c : course) {
-            for(String o : orders) {
-                String[] sortedOrder = o.split("");
-                Arrays.sort(sortedOrder);
-            
-                int n = sortedOrder.length;
-                if(c > n) continue;
-                
-                makeCombination(sortedOrder, new StringBuilder(), 0, n, c);
-            }
-            
-            Optional<Integer> optionalMax = hashMap.values().stream()
-                    .max((v1, v2) -> Integer.compare(v1, v2));
-                
-                int max = optionalMax.isPresent() ? optionalMax.get() : 0;
-                
-                if(max >= 2) hashMap.entrySet().stream()
-                    .filter(entrySet -> entrySet.getValue() == max)
-                    .forEach(entrySet -> hashSet.add(entrySet.getKey()));
-            
-            hashMap.clear();
+        for (int courseLength : courseLengths) {
+            maxCntByCourseLength.put(courseLength, 0);
         }
         
-        return hashSet.stream()
-            .sorted()
-            .toArray(String[]::new);
+        for (String order : orders) {
+            char[] charArr = order.toCharArray();
+            Arrays.sort(charArr);
+            dfs(0, 0, courseLengths[courseLengths.length - 1], new String(charArr), "");
+        }
+        
+        ArrayList<String> courseList = new ArrayList<> ();
+        for (Map.Entry entrySet : cntByCourse.entrySet()) {
+            String course = (String) entrySet.getKey();
+            int length = course.length();
+            int cnt = (int) entrySet.getValue();
+            
+            if (cnt >= 2 && cnt == maxCntByCourseLength.get(length)) {
+                courseList.add(course);
+            }
+        }
+        
+        Collections.sort(courseList);
+        
+        return listToArr(courseList);
     }
     
-    static void makeCombination(String[] arr, StringBuilder sb, int start, int n, int r) {
-        if(r == 0) {
-            String key = sb.toString();
-            hashMap.put(key, hashMap.getOrDefault(key, 0) + 1);
-            return;
+    private void dfs(int start, int courseLength, int maxCourseLength, String order, String course) {
+        if (courseLength > maxCourseLength) {
+            return ;
         }
-        
-        for(int i = start; i < n; i++) {
-            sb.append(arr[i]);
-            makeCombination(arr, sb, i + 1, n, r - 1);
-            sb.deleteCharAt(sb.length() - 1);
+        if (isTargetCourseLength(courseLength)) {
+            cntByCourse.put(course, cntByCourse.getOrDefault(course, 0) + 1);
+            maxCntByCourseLength.put(courseLength, Math.max(maxCntByCourseLength.get(courseLength), cntByCourse.get(course)));
         }
+        for (int i = start; i < order.length(); i++) {
+            dfs(i + 1, courseLength + 1, maxCourseLength, order, course + order.charAt(i));
+        }
+    }
+    
+    private boolean isTargetCourseLength(int courseLength) {
+        return maxCntByCourseLength.containsKey(courseLength);
+    }
+    
+    private String[] listToArr(ArrayList<String> list) {
+        String[] arr = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            arr[i] = list.get(i);
+        }
+        return arr;
     }
 }
