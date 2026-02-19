@@ -1,67 +1,62 @@
 import java.util.*;
 
 class Solution {
-    public int solution(int N, int[][] road, int K) {
-        int[][] distanceMap = new int[N + 1][N + 1];
-        
-        // init map
-        for (int[] roadInfo: road) {
-            int townNum = roadInfo[0];
-            int townNum2 = roadInfo[1];
-            int distance = roadInfo[2];
-            
-            if (distanceMap[townNum][townNum2] == 0) {
-                distanceMap[townNum][townNum2] = distance;
-                distanceMap[townNum2][townNum] = distance;
-            } else {
-                distanceMap[townNum][townNum2] = Math.min(distanceMap[townNum][townNum2], distance);
-                distanceMap[townNum2][townNum] = Math.min(distanceMap[townNum2][townNum], distance);
-            }
-        }
-        
-        return findReachableTownUsingBfs(distanceMap, N, K);
-    }
-    
-    private int findReachableTownUsingBfs(int[][] distanceMap, int N, int K) {
-        ArrayDeque<Town> townQue = new ArrayDeque<> ();
-        townQue.offer(new Town(1, 0));
-        
-        int[] minDistanceArr = new int[N + 1];
-        Arrays.fill(minDistanceArr, Integer.MAX_VALUE);
-        minDistanceArr[1] = 0;
-        
-        int visitedCnt = 0;
-        
-        while (!townQue.isEmpty()) {
-            Town town = townQue.poll();
-            int curTownNum = town.num;
-            int curDistanceSum = town.distanceSum;
-            
-            for (int nextTownNum = 1; nextTownNum <= N; nextTownNum++) {
-                int nextDistance = distanceMap[curTownNum][nextTownNum];
-                int nextDistanceSum = curDistanceSum + nextDistance;
-                if (nextDistance == 0 || nextDistanceSum > K || nextDistanceSum >= minDistanceArr[nextTownNum])
-                    continue;
-                townQue.offer(new Town(nextTownNum, nextDistanceSum));
-                minDistanceArr[nextTownNum] = nextDistanceSum;
-            }
-        }
-        
-        for (int distance : minDistanceArr) {
-            if (distance <= K)
-                visitedCnt++;
-        }
-        
-        return visitedCnt;
-    }
-    
-    static class Town {
+    static class Node {
         int num;
-        int distanceSum;
+        int time;
         
-        public Town(int num, int distanceSum) {
+        public Node (int num, int time) {
             this.num = num;
-            this.distanceSum = distanceSum;
+            this.time = time;
         }
+    }
+    
+    public int solution(int N, int[][] road, int K) {
+        // 그래프 초기화
+        ArrayList<Node>[] graph = new ArrayList[N + 1];
+        
+        for (int i = 1; i <= N; i++) {
+            graph[i] = new ArrayList<> ();
+        }
+        
+        for (int[] node : road) {
+            graph[node[0]].add(new Node(node[1], node[2]));
+            graph[node[1]].add(new Node(node[0], node[2]));
+        }
+        
+        // 최소 방문 횟수 저장 배열 초기화
+        int[] minTimeByNode = new int[N + 1];
+        Arrays.fill(minTimeByNode, Integer.MAX_VALUE);
+        
+        bfs(graph, minTimeByNode, K);
+        
+        int answer = 0;
+        for (int minTime : minTimeByNode) {
+            if (minTime != Integer.MAX_VALUE) {
+                answer++;
+            }
+        }
+        
+        return answer;
+    }
+    
+    private void bfs(ArrayList<Node>[] graph, int[] minTimeByNode, int K) {
+        ArrayDeque<Node> que = new ArrayDeque<> ();
+        que.offer(new Node(1, 0));
+        minTimeByNode[1] = 0; 
+        
+        while (!que.isEmpty()) {
+            Node node = que.poll();
+            
+            for (Node nextNode : graph[node.num]) {
+                int nextTime = node.time + nextNode.time;
+                
+                if (nextTime <= K && nextTime < minTimeByNode[nextNode.num]) {
+                    que.offer(new Node(nextNode.num, nextTime));
+                    minTimeByNode[nextNode.num] = nextTime;
+                }
+            }
+        }
+        
     }
 }
