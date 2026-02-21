@@ -2,62 +2,37 @@ import java.util.*;
 
 class Solution {
     public int[] solution(String[] gems) {
-        HashMap<String, Integer> gemCntMap = new HashMap<> ();
-        
-        for (String gem : gems) {
-            if (!gemCntMap.containsKey(gem))
-                gemCntMap.put(gem, 0);
-        }
-        
-        HashSet<String> exsitGemSet = new HashSet<> ();
         int[] answer = new int[2];
-        int answerLen = Integer.MAX_VALUE;
-        int start = 0;
+        int minLen = Integer.MAX_VALUE;
         
-        for (int end = 0; end < gems.length; end++) {
-            String gem = gems[end];
-            
-            gemCntMap.put(gem, gemCntMap.getOrDefault(gem, 0) + 1);
-            exsitGemSet.add(gem);
-            
-            while (exsitGemSet.size() == gemCntMap.size()) {
-                String targetGem = gems[start];
-                int targetGemCnt = gemCntMap.get(targetGem);
-                
-                if (targetGemCnt == 1) {
-                    exsitGemSet.remove(targetGem);
-                    
-                    if (end - start < answerLen) {
-                        answer[0] = start + 1;
-                        answer[1] = end + 1;
-                        answerLen = end - start;
-                    }
-                }
-                
-                start++;
-                gemCntMap.put(targetGem, targetGemCnt - 1);
-            }
+        HashSet<String> uniqueGemSet = new HashSet<> ();
+        for (String gem : gems) {
+            uniqueGemSet.add(gem);
         }
         
-        int gemsLen = gems.length;
-        
-        while (exsitGemSet.size() == gemCntMap.size()) {
-                String targetGem = gems[start];
-                int targetGemCnt = gemCntMap.get(targetGem);
-                
-                if (targetGemCnt == 1) {
-                    exsitGemSet.remove(targetGem);
+        HashMap<String, Integer> cntByGem = new HashMap<> ();
+        int start = 0;
+        for (int end = 0; end < gems.length; end++) {
+            cntByGem.put(gems[end], cntByGem.getOrDefault(gems[end], 0) + 1);
+            
+            if (uniqueGemSet.size() == cntByGem.size()) {
+                while (start <= end) {
+                    cntByGem.put(gems[start], cntByGem.get(gems[start]) - 1);
                     
-                    if (gemsLen - 1 - start < answerLen) {
-                        answer[0] = start + 1;
-                        answer[1] = gemsLen;
-                        answerLen = gemsLen - 1 - start;
+                    if (cntByGem.get(gems[start]) == 0) {
+                        cntByGem.remove(gems[start]);
+                        if (end - start < minLen) {
+                            minLen = end - start;
+                            answer[0] = start + 1;
+                            answer[1] = end + 1;
+                        }
+                        start++;
+                        break;
                     }
+                    start++;
                 }
-                
-                start++;
-                gemCntMap.put(targetGem, targetGemCnt - 1);
             }
+        }
         
         return answer;
     }
