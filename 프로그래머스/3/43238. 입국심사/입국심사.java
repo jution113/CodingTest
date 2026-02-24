@@ -1,9 +1,12 @@
+import java.util.*;
+
 class Solution {
     public long solution(int n, int[] times) {        
-        long answer = 100000000000000L;
+        long answer = 0;
         
         long left = 0;
-        long right = 100000000000000L;
+        Arrays.sort(times);
+        long right = (long) n * (long) times[times.length - 1];
         
         while (left <= right) {
             long mid = (left + right) / 2;
