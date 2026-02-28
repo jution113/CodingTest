@@ -23,7 +23,7 @@ public class Main {
         
         int[] parents = new int[N + 1];
         
-        bfs(N, graph, parents);
+        dfs(1, 0, graph, parents);
         
         StringBuilder sb = new StringBuilder();
         for (int i = 2; i <= N; i++) {
@@ -32,21 +32,11 @@ public class Main {
         System.out.println(sb.toString());
     }
     
-    private static void bfs(int N, ArrayList<Integer>[] graph, int[] parents) {
-        ArrayDeque<Integer> que = new ArrayDeque<> ();
-        que.offer(1);
-
-        boolean[] visited = new boolean[N + 1];
-        
-        while (!que.isEmpty()) {
-            int start = que.poll();
-            
-            for (int end : graph[start]) {
-                if (!visited[end]) {
-                    visited[end] = true;
-                    que.offer(end);
-                    parents[end] = start;
-                }
+    private static void dfs(int start, int parent, ArrayList<Integer>[] graph, int[] parents) {
+        for (int end : graph[start]) {
+            if (end != parent) {
+                parents[end] = start;
+                dfs(end, start, graph, parents);
             }
         }
     }
