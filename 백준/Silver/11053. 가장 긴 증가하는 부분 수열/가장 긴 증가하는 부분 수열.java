@@ -2,27 +2,36 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N;
-    static int[] src;
-    static int[] dp;
-    static int max = 0;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        src = new int[N];
-        dp = new int[N];
-        for (int i = 0; i < N; i++) {
-            src[i] = Integer.parseInt(st.nextToken());
-            dp[i] = 1;
+        StringTokenizer st = new StringTokenizer(br.readLine());        
+        int n = Integer.parseInt(st.nextToken());
+        
+        st = new StringTokenizer(br.readLine());
+        int[] nums = new int[n];
+        for (int i = 0; i < n; i++) {
+            nums[i] = Integer.parseInt(st.nextToken());
         }
-        for (int i = 0; i < N; i++) {
+        
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);
+        
+        for (int i = 1; i < n; i++) {
+            int maxLen = 1;
+            
             for (int j = 0; j < i; j++) {
-                if (src[i] > src[j]) dp[i] = Math.max(dp[j] + 1, dp[i]);
+                if (nums[j] < nums[i] && dp[j] >= maxLen) {
+                    maxLen = dp[j];
+                    dp[i] = maxLen + 1;
+                }
             }
-            max = Math.max(dp[i], max);
         }
-        System.out.println(max);
+        
+        int maxLen = dp[0];
+        for (int i : dp) {
+            maxLen = Math.max(maxLen, i);
+        }
+        
+        System.out.println(maxLen);
     }
 }
