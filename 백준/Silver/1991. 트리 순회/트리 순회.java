@@ -1,74 +1,78 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
+    static int[][] graph;
+    
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int nodeSize = Integer.parseInt(st.nextToken());
         
-        final char DEFAULT_ROOT = 'A';
-        int nodeCnt = Integer.parseInt(br.readLine());
-
-        ArrayList<Node> nodes = new ArrayList<>();
-        Node root = new Node(DEFAULT_ROOT);
-        nodes.add(root);
-
-        for(int i = 0; i < nodeCnt; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            char parent = st.nextToken().charAt(0);
-            char left = st.nextToken().charAt(0);
-            char right = st.nextToken().charAt(0);
-
-            Node leftNode = left == '.' ? null : new Node(left);
-            Node rightNode = right == '.' ? null : new Node(right);
+        graph = new int[nodeSize][2];
+        
+        for (int i = 0; i < nodeSize; i++) {
+            st = new StringTokenizer(br.readLine());
+            int parent = st.nextToken().charAt(0) - 'A';
             
-            for(int j = 0; j < nodes.size(); j++) {
-                if(nodes.get(j).data == parent) {
-                    if(leftNode != null) nodes.add(leftNode);
-                    nodes.get(j).left = leftNode;
-                    if(rightNode != null) nodes.add(rightNode);
-                    nodes.get(j).right = rightNode;
-                }
-            }
+            String leftStr = st.nextToken();
+            int left = leftStr.equals(".") ? -1 : leftStr.charAt(0) - 'A';
+            
+            String rightStr = st.nextToken();
+            int right = rightStr.equals(".") ? -1 : rightStr.charAt(0) - 'A';
+            
+            graph[parent][0] = left;
+            graph[parent][1] = right;
         }
         
-        preOrder(root, sb);
-        sb.append('\n');
-        inOrder(root, sb);
-        sb.append('\n');
-        postOrder(root, sb);
-
-        System.out.println(sb);
+        StringBuilder sb = new StringBuilder();
+        preOrder(0, sb);
+        sb.append("\n");
+        inOrder(0, sb);
+        sb.append("\n");
+        postOrder(0, sb);
+        sb.append("\n");
+        
+        System.out.println(sb.toString());
     }
-
-    static void preOrder(Node start, StringBuilder result) {
-        if(start == null) return;
-        result.append(start.data);
-        if(start.left != null) preOrder(start.left, result);
-        if(start.right != null) preOrder(start.right, result);
+    
+    private static void preOrder(int parent, StringBuilder sb) {
+        char c = (char) (65 + parent);
+        sb.append(c);
+        
+        if (graph[parent][0] != -1) {
+            preOrder(graph[parent][0], sb);
+        }
+        
+        if (graph[parent][1] != -1) {
+            preOrder(graph[parent][1], sb);
+        }
     }
-
-    static void inOrder(Node start, StringBuilder result) {
-        if(start == null) return;
-        if(start.left != null) inOrder(start.left, result);
-        result.append(start.data);
-        if(start.right != null) inOrder(start.right, result);
+    
+    private static void inOrder(int parent, StringBuilder sb) {
+        if (graph[parent][0] != -1) {
+            inOrder(graph[parent][0], sb);
+        }
+        
+        char c = (char) (65 + parent);
+        sb.append(c);
+        
+        if (graph[parent][1] != -1) {
+            inOrder(graph[parent][1], sb);
+        }
     }
-
-    static void postOrder(Node start, StringBuilder result) {
-        if(start == null) return;
-        if(start.left != null) postOrder(start.left, result);
-        if(start.right != null) postOrder(start.right, result);
-        result.append(start.data);
-    }
-}
-
-class Node {
-    char data;
-    Node left;
-    Node right;
-
-    public Node(char data) {
-        this.data = data;
+    
+    private static void postOrder(int parent, StringBuilder sb) {
+        if (graph[parent][0] != -1) {
+            postOrder(graph[parent][0], sb);
+        }
+        
+        if (graph[parent][1] != -1) {
+            postOrder(graph[parent][1], sb);
+        }
+        
+        char c = (char) (65 + parent);
+        sb.append(c);
     }
 }
