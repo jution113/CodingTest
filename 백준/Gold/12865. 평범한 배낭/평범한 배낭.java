@@ -1,5 +1,5 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -7,26 +7,29 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         int N = Integer.parseInt(st.nextToken());
         int K = Integer.parseInt(st.nextToken());
-        
         int[][] dp = new int[N + 1][K + 1];
-        int[] weightArr = new int[N + 1];
-        int[] valueArr = new int[N + 1];
+        int[][] info = new int[N + 1][2];
         
-        for(int i = 1; i <= N; i++) {
+        for (int n = 1; n <= N; n++) {
             st = new StringTokenizer(br.readLine());
-            weightArr[i] = Integer.parseInt(st.nextToken());
-            valueArr[i] = Integer.parseInt(st.nextToken());
+            int W = Integer.parseInt(st.nextToken());
+            int V = Integer.parseInt(st.nextToken());
+            info[n] = new int[] {W, V};
         }
         
-        for(int n = 1; n <= N; n++) {
-            for(int w = 0; w <= K; w++) {
-                if(w < weightArr[n]) {
-                    dp[n][w] = dp[n - 1][w];
+        for (int n = 1; n <= N; n++) {
+            int w = info[n][0];
+            int v = info[n][1];
+            
+            for (int k = 1; k <= K; k++) {
+                if (k < w) {
+                    dp[n][k] = dp[n - 1][k];
                 } else {
-                    dp[n][w] = Math.max(dp[n - 1][w], dp[n - 1][w - weightArr[n]] + valueArr[n]);
+                    dp[n][k] = Math.max(dp[n - 1][k], dp[n - 1][k - w] + v);
                 }
             }
         }
+        
         System.out.println(dp[N][K]);
     }
 }
