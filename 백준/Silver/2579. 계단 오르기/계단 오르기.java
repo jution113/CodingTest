@@ -1,29 +1,23 @@
-import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int stairCnt;
-    static int[] stairs;
-    static int[] scores;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        stairCnt = Integer.parseInt(br.readLine());
-        stairs = new int[stairCnt + 1];
-        scores = new int[stairCnt + 1];
-
-        for(int i = 1; i <= stairCnt; i++) {
-            stairs[i] = Integer.parseInt(br.readLine());
-        }
-
-        scores[1] = stairs[1];
-        if(stairCnt >= 2) scores[2] = stairs[1] + stairs[2];
-        if(stairCnt >= 3) scores[3] = Math.max(stairs[1], stairs[2]) + stairs[3];
-        if(stairCnt >= 4) {
-            for(int i = 4; i <= stairCnt; i++) {
-                scores[i] = Math.max(scores[i -  3] + stairs[i - 1], scores[i - 2]) + stairs[i];
+        int n = Integer.parseInt(br.readLine());
+        int[] nums = new int[n + 1];
+        int[] dp = new int[n + 1];
+        
+        for (int i = 1; i <= n; i++) {
+            int num = Integer.parseInt(br.readLine());
+            nums[i] = num;
+            if (i == 1) {
+                dp[i] = num;
+            } else if (i == 2) {
+                dp[i] = dp[i - 1] + num;
+            } else {
+                dp[i] = Math.max(dp[i - 2], dp[i - 3] + nums[i - 1]) + num;
             }
         }
-
-        System.out.println(scores[stairCnt]);
+        System.out.println(dp[n]);
     }
 }
