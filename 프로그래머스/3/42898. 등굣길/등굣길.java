@@ -1,33 +1,34 @@
 class Solution {
     public int solution(int m, int n, int[][] puddles) {
-        int[][] dp = new int[n][m];
+        int[][] dp = new int[n + 1][m + 1];
         
         for (int[] puddle : puddles) {
-            dp[puddle[1] - 1][puddle[0] - 1] = -1;
+            int r = puddle[1];
+            int c = puddle[0];
+            dp[r][c] = -1;
         }
         
-        for (int r = 0; r < n; r++) {
-            if (dp[r][0] == -1)
-                break;
-            dp[r][0] = 1;
+        for (int r = 1; r <= n; r++) {
+            if (dp[r][1] == -1) break;
+                dp[r][1] = 1;
         }
         
-        for (int c = 0; c < m; c++) {
-            if (dp[0][c] == -1)
-                break;
-            dp[0][c] = 1;
+        for (int c = 1; c <= m; c++) {
+            if (dp[1][c] == -1) break;
+                dp[1][c] = 1;
         }
         
-        for (int r = 1; r < n; r++) {
-            for (int c = 1; c < m; c++) {
-                if (dp[r][c] == -1)
-                    continue;
+        for (int r = 2; r <= n; r++) {
+            for (int c = 2; c <= m; c++) {
+                if (dp[r][c] == -1) continue;
+                
+                int left = dp[r][c - 1] == -1 ? 0 : dp[r][c - 1];
                 int up = dp[r - 1][c] == -1 ? 0 : dp[r - 1][c];
-                int right = dp[r][c - 1] == -1 ? 0 : dp[r][c - 1];
-                dp[r][c] = (up + right) % 1000000007;
+                dp[r][c] = (left + up) % 1000000007;
             }
         }
         
-        return dp[n - 1][m - 1];
+        int answer = dp[n][m];
+        return answer;
     }
 }
