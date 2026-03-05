@@ -1,0 +1,7 @@
+-- 코드를 작성해주세요
+SELECT COUNT(name_info.FISH_NAME) AS FISH_COUNT, name_info.FISH_NAME
+FROM FISH_INFO AS info
+    INNER JOIN FISH_NAME_INFO AS name_info
+    ON info.FISH_TYPE = name_info.FISH_TYPE
+GROUP BY name_info.FISH_NAME
+ORDER BY COUNT(info.FISH_TYPE) DESC;
