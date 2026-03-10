@@ -12,13 +12,13 @@ class Solution {
         
         for (int mid = 1; mid <= totalPlayer; mid++) {
             for (int start = 1; start <= totalPlayer; start++) {
+                if (resultTable[start][mid] != 1)
+                    continue;
+                
                 for (int end = 1; end <= totalPlayer; end++) {
-                    if (resultTable[start][mid] == 1 && resultTable[mid][end] == 1) {
+                    if (resultTable[mid][end] == 1) {
                         resultTable[start][end] = 1;                    
                         resultTable[end][start] = -1;                    
-                    } else if (resultTable[start][mid] == -1 && resultTable[mid][end] == -1) {
-                        resultTable[start][end] = -1;                    
-                        resultTable[end][start] = 1;                    
                     }
                 }
             }
