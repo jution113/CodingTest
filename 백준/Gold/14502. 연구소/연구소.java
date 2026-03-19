@@ -1,110 +1,113 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static int n;
-    static int m;
-    static int[][] map;
-    static int[] dirY = {1, 0, -1, 0};
-    static int[] dirX = {0, 1, 0, -1};
-    static int mapSzie;
-    static int[][] simulationMap;
-    static int defaultWallCnt = 0;
-    static int defaultVirusCnt = 0;
-    static int maxSafeZoneCnt = 0;
-    static int addedVirusCnt = 0;
+    private static int yLen;
+    private static int xLen;
+    private static int mapSize;
+    private static int wallCnt;
+    private static int maxSafeAreaCnt;
+    private static int[][] map;
+    private static ArrayList<int[]> virusStartPosList;
 
+    private static final int DIR_SIZE = 4;
+    private static final int[] DIR_Y = {-1, 0, 1, 0};
+    private static final int[] DIR_X = {0, 1, 0, -1};
+    
+    private static int bfs(int[][] newMap) {
+        ArrayDeque<int[]> que = new ArrayDeque<> ();
+        int virusCnt = 0;
+        
+        for (int[] virusPos : virusStartPosList) {
+            que.offer(virusPos);
+        }
+        
+        while (!que.isEmpty()) {
+            int[] virusPos = que.poll();
+            int y = virusPos[0];
+            int x = virusPos[1];
+            virusCnt++;
+            
+            for (int dir = 0; dir < DIR_SIZE; dir++) {
+                int nextY = y + DIR_Y[dir];
+                int nextX = x + DIR_X[dir];
+                
+                // 맵 범위 검사
+                if (nextY < 0 || nextY == yLen || nextX < 0 || nextX == xLen) {
+                    continue;
+                    
+                // 벽 검사
+                } else if (newMap[nextY][nextX] != 0) {
+                    continue;
+                }
+                
+                newMap[nextY][nextX] = 2;
+                que.offer(new int[] {nextY, nextX});
+            }
+        }
+        
+        return mapSize - (wallCnt + 3 + virusCnt);
+    }
+    
+    private static int[][] matrixDeepCopy(int[][] matrix) {
+        int[][] newMatrix = new int[yLen][xLen];
+        
+        for (int y = 0; y < yLen; y++) {
+            newMatrix[y] = Arrays.copyOf(matrix[y], xLen);
+        }
+        
+        return newMatrix;
+    }
+    
+    private static void dfs(int nextY, int nextX, int depth) {
+        if (depth == 3) {
+            maxSafeAreaCnt = Math.max(maxSafeAreaCnt, bfs(matrixDeepCopy(map)));
+            return;
+        }
+        
+        for (int y = nextY; y < yLen; y++) {
+            int startX = y == nextY ? nextX : 0;
+            for (int x = startX; x < xLen; x++) {
+                if (map[y][x] == 0) {
+                    map[y][x] = 1;
+                    dfs(y, x + 1, depth + 1);
+                    map[y][x] = 0;
+                }
+            }
+        }
+    }
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
+        yLen = Integer.parseInt(st.nextToken());
+        xLen = Integer.parseInt(st.nextToken());
+        
+        map = new int[yLen][xLen];
+        mapSize = yLen * xLen;
+        virusStartPosList = new ArrayList<> ();
+        
+        // 맵 초기화
+        for (int y = 0; y < yLen; y++) {
+            st =  new StringTokenizer(br.readLine());
+            
+            for (int x = 0; x < xLen; x++) {
+                map[y][x] = Integer.parseInt(st.nextToken());
 
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-
-        map = new int[n][m];
-        mapSzie = n * m;
-
-        for(int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
-
-            for(int j = 0; j < m; j++) {
-                int input = Integer.parseInt(st.nextToken());
-
-                if(input == 1) {
-                    defaultWallCnt++;
-                } else if(input == 2) {
-                    defaultVirusCnt++;
-                }
-
-                map[i][j] = input;
-            }
-        }
-
-
-        for(int y = 0; y < n; y++) {
-            for(int x = 0; x < m; x++) {
-                setWall(y, x, map, 0);
-            }
-        }
-
-        System.out.print(maxSafeZoneCnt);
-
-    }
-
-    static void setWall(int y, int x, int[][] mapSrc, int setWallCnt) {
-        if(setWallCnt == 3) {
-            addedVirusCnt = 0;
-            simulationMap = copyArray(mapSrc);
-    
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < m; j++) {
-                    if(simulationMap[i][j] == 2) virusSimulation(i, j);
-                }
-            }
-    
-            int currentSafeZoneCnt = mapSzie - (defaultWallCnt + 3 + defaultVirusCnt + addedVirusCnt);
-            if(currentSafeZoneCnt > maxSafeZoneCnt) maxSafeZoneCnt = currentSafeZoneCnt;
-            return;
-        }
-
-        if(mapSrc[y][x] == 0) {
-            int[][] copyMap = copyArray(mapSrc);
-            copyMap[y][x] = 1;
-
-            for(int nextY = y; nextY < n; nextY++) {
-                for(int nextX = 0; nextX < m; nextX++) {
-                    setWall(nextY, nextX, copyMap, setWallCnt + 1);
+                // 벽 수 카운트
+                if (map[y][x] == 1) {
+                    wallCnt++;
+                    
+                // 바이러스 위치 저장
+                } else if (map[y][x] == 2) {
+                    virusStartPosList.add(new int[] {y, x});
                 }
             }
         }
-
-    }
-
-    static void virusSimulation(int startY, int startX) {
-        for(int i = 0; i < dirY.length; i++) {
-            int nextY = startY + dirY[i];
-            int nextX = startX + dirX[i];
-
-            if(nextY < 0 || n <= nextY) continue;
-            if(nextX < 0 || m <= nextX) continue;
-            if(simulationMap[nextY][nextX] != 0) continue;
-            simulationMap[nextY][nextX] = 2;
-            addedVirusCnt++;
-            virusSimulation(nextY, nextX);
-        }
-
-    }
-
-    static int[][] copyArray(int[][] src) {
-        int row = src.length;
-        int col = src[0].length;
-        int[][] result = new int[row][col];
-        for(int i = 0; i < row; i++) {
-            for(int j = 0; j < col; j++) {
-                result[i][j] = src[i][j];
-            }
-        }
-
-        return result;
+        
+        maxSafeAreaCnt = 0;
+        dfs(0, 0, 0);
+        
+        System.out.println(maxSafeAreaCnt);
     }
 }
