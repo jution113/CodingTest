@@ -1,40 +1,51 @@
-class Solution {
-    public int solution(int totalPlayer, int[][] results) {
-        int[][] resultTable = new int[totalPlayer + 1][totalPlayer + 1];
+import java.util.*;
 
-        for (int[] result : results) {
-            int winner = result[0];
-            int loser = result[1];
+class Solution {
+    public int solution(int n, int[][] results) {
+        // 그래프 초기화
+        int[][] graph = new int[n + 1][n + 1];
+        for (int i = 0; i < results.length; i++) {
+            int winner = results[i][0];
+            int loser = results[i][1];
             
-            resultTable[winner][loser] = 1;
-            resultTable[loser][winner] = -1;
+            // graph 값: 1(승리), -1(패배), 0(알 수 없음)
+            graph[winner][loser] = 1;
+            graph[loser][winner] = -1;
         }
-        
-        for (int mid = 1; mid <= totalPlayer; mid++) {
-            for (int start = 1; start <= totalPlayer; start++) {
-                if (resultTable[start][mid] != 1)
-                    continue;
-                
-                for (int end = 1; end <= totalPlayer; end++) {
-                    if (resultTable[mid][end] == 1) {
-                        resultTable[start][end] = 1;                    
-                        resultTable[end][start] = -1;                    
-                    }
-                }
-            }
-        }
-        
+
         int answer = 0;
-        for (int i = 1; i <= totalPlayer; i++) {
-            int resultCnt = 0;
+        
+        for (int i = 1; i <= n; i++) {
+            int winCnt = bfs(i, graph, n, 1);
+            int loseCnt = bfs(i, graph, n, -1);
             
-            for (int j = 1; j <= totalPlayer; j++) {
-                if (resultTable[i][j] != 0) resultCnt++;
-            }
-            
-            if (resultCnt == totalPlayer - 1) answer++;
+            if (winCnt + loseCnt == n - 1)
+                answer++;
         }
         
         return answer;
+    }
+    
+    private int bfs(int start, int[][] graph, int n, int gameResult) {
+        boolean[] visit = new boolean[n + 1];
+        ArrayDeque<Integer> que = new ArrayDeque<> ();
+        que.offer(start);
+        visit[start] = true;
+        
+        int cnt = 0;
+        
+        while (!que.isEmpty()) {
+            int cur = que.poll();
+            
+            for (int next = 1; next <= n; next++) {
+                if (visit[next] || graph[cur][next] != gameResult)
+                    continue;
+                que.offer(next);
+                visit[next] = true;
+                cnt++;
+            }
+        }
+        
+        return cnt;
     }
 }
