@@ -2,26 +2,31 @@ import java.util.*;
 
 class Solution {
     public int solution(int n, int[][] computers) {
-        HashMap<Integer, Integer> map = new HashMap<> ();
-        int netCnt = 0;
+        boolean[] visit = new boolean[n];
+        int answer = 0;
         
-        for (int pc = 0; pc < n; pc++) {
-            int netId;
-
-            if (map.containsKey(pc)) {
-                netId = map.get(pc);
-            } else {
-                netCnt++;
-                netId = netCnt;
-            }
-            
-            for (int pc2 = 0; pc2 < n; pc2++) {
-                if (computers[pc][pc2] == 0 || map.containsKey(pc2))
-                    continue;
-                map.put(pc2, netId);
+        for (int start = 0; start < n; start++) {
+            if (!visit[start]) {
+                bfs(start, computers, visit, n);
+                answer++;
             }
         }
         
-        return netCnt;
+        return answer;
+    }
+    
+    private void bfs(int init, int[][] computers, boolean[] visit, int n) {
+        ArrayDeque<Integer> que = new ArrayDeque<> ();
+        que.offer(init);
+        
+        while (!que.isEmpty()) {
+            int start = que.poll();
+            visit[start] = true;
+            
+            for (int end = 0; end < n; end++) {
+                if (!visit[end] && computers[start][end] == 1)
+                    que.offer(end);
+            }
+        }
     }
 }
