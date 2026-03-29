@@ -3,20 +3,19 @@ import java.util.*;
 class Solution {
     public int solution(int[] A, int[] B) {
         int answer = 0;
-        int i = 0;
-        int j = 0;
-        int n = A.length;
-        
+
         Arrays.sort(A);
         Arrays.sort(B);
         
-        while (i < n && j < n) {
-            if (B[j] > A[i]) {
-                i++;
-                j++;
+        int s = 0;
+        int e = B.length - 1;
+        
+        for (int i = A.length - 1; i >= 0; i--) {
+            if (A[i] < B[e]) {
+                e--;
                 answer++;
             } else {
-                j++;
+                s++;
             }
         }
         
