@@ -2,70 +2,76 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int M;
-    static int N;
-    static int[] dirY = {-1, 0, 1, 0};
-    static int[] dirX = {0, 1, 0, -1};
-    static int[][] map;
-
+    private static final int DIR_SIZE = 4;
+    private static final int[] DIR_Y = {-1, 0, 1, 0};
+    private static final int[] DIR_X = {0, 1, 0, -1};
+    
+    private static class Tomato {
+        int day;
+        int[] pos;
+        
+        public Tomato(int day, int[] pos) {
+            this.day = day;
+            this.pos = pos;
+        }
+    }
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        M = Integer.parseInt(st.nextToken());
-        N = Integer.parseInt(st.nextToken());
-        map = new int[N][M];
-        Queue<Point> bufferQueue1 = new LinkedList<> ();
-        Queue<Point> bufferQueue2 = new LinkedList<> ();
-        int targetCnt = 0;
-        int resCnt = 0;
-
-        // map setting
-        for (int y = 0; y < N; y++) {
+        int xLen = Integer.parseInt(st.nextToken());
+        int yLen = Integer.parseInt(st.nextToken());
+        int[][] map = new int[yLen][xLen];
+        boolean[][] visit = new boolean[yLen][xLen];
+        
+        ArrayDeque<Tomato> que = new ArrayDeque<> ();
+        
+        for (int y = 0; y < yLen; y++) {
             st = new StringTokenizer(br.readLine());
-            for (int x = 0; x < M; x++) {
-                int num = Integer.parseInt(st.nextToken());
-                map[y][x] = num;
-                if (num == 1) {
-                    bufferQueue1.offer(new Point(y, x));
-                } else if (num == 0) targetCnt++;
-            }
-        }
-
-        // spread
-        while (true) {
-            Queue<Point> fullQueue = bufferQueue1.isEmpty() ? bufferQueue2 : bufferQueue1;
-            Queue<Point> emptyQueue = bufferQueue1.isEmpty() ? bufferQueue1 : bufferQueue2;
-
-            while (!fullQueue.isEmpty()) {
-                Point point = fullQueue.poll();
-                int y = point.y;
-                int x = point.x;
-
-                for (int i = 0; i < 4; i ++) {
-                    int nextY = y + dirY[i];
-                    int nextX = x + dirX[i];
-                    if (nextY >= 0 && nextY < N && nextX >= 0 && nextX < M && map[nextY][nextX] == 0) {
-                        map[nextY][nextX] = 1;
-                        targetCnt--;
-                        emptyQueue.offer(new Point(nextY, nextX));
-                    }
+            
+            for (int x = 0; x < xLen; x++) {
+                map[y][x] = Integer.parseInt(st.nextToken());
+                
+                if (map[y][x] == 1) {
+                    que.offer(new Tomato(0, new int[] {y, x}));
+                    visit[y][x] = true;
                 }
             }
-            if (emptyQueue.isEmpty()) break;
-            resCnt++;
         }
-
-        if (targetCnt > 0) resCnt = -1;
-        System.out.print(resCnt);
-    }
-
-    static class Point {
-        int y;
-        int x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
+        
+        int totalDay = 0;
+        
+        while (!que.isEmpty()) {
+            Tomato tomato = que.poll();
+            int y = tomato.pos[0];
+            int x = tomato.pos[1];
+            
+            for (int d = 0; d < DIR_SIZE; d++) {
+                int ny = y + DIR_Y[d];
+                int nx = x + DIR_X[d];
+                
+                if (ny < 0 || ny == yLen || nx < 0 || nx == xLen)
+                    continue;
+                if (map[ny][nx] != 0 || visit[ny][nx])
+                    continue;
+                
+                visit[ny][nx] = true;
+                map[ny][nx] = 1;
+                
+                que.offer(new Tomato(tomato.day + 1, new int[] {ny, nx}));
+                totalDay = Math.max(totalDay, tomato.day + 1);
+            }
         }
+        
+        for (int y = 0; y < yLen; y++) {
+            for (int x = 0; x < xLen; x++) {
+                if (map[y][x] == 0) {
+                    totalDay = -1;
+                    break;
+                }
+            }
+        }
+        
+        System.out.println(totalDay);
     }
 }
