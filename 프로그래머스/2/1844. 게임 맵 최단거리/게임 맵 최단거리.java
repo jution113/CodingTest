@@ -1,58 +1,43 @@
 import java.util.*;
 
 class Solution {
-    static int yLen = 0;
-    static int xLen = 0;
-    static int[] yDir = {1, 0, -1, 0};
-    static int[] xDir = {0, 1, 0, -1};
-    static int[][] mapsCopy;
-    static boolean[][] isVisited;
+    private final int DIR_SIZE = 4;
+    private final int[] DIR_Y = {-1, 0, 1, 0};
+    private final int[] DIR_X = {0, 1, 0, -1};
     
     public int solution(int[][] maps) {
-        xLen = maps[0].length;
-        yLen = maps.length;
-        mapsCopy = maps;
-        isVisited = new boolean[yLen][xLen];
-        return bfs();
-    }
-    
-    private int bfs() {
-        Queue<Move> que = new ArrayDeque<> ();
-        que.offer(new Move(0, 0, 0));
-        isVisited[0][0] = true;
+        int n = maps.length;
+        int m = maps[0].length;
+        int minMove = Integer.MAX_VALUE;
+        boolean[][] visit = new boolean[n][m];
+        
+        ArrayDeque<int[]> que = new ArrayDeque<> ();
+        que.offer(new int[] {0, 0, 1});
+        visit[0][0] = true;
         
         while (!que.isEmpty()) {
-            Move m = que.poll();
-            m.cnt++;
+            int[] node = que.poll();
+            int y = node[0];
+            int x = node[1];
+            int move = node[2];
             
-            if (m.y == yLen - 1 && m.x == xLen - 1)
-                return m.cnt;
+            if (y == n - 1 && x == m - 1) 
+                return move;
             
-            for (int i = 0; i < 4; i++) {
-                int nextY = m.y + yDir[i];
-                int nextX = m.x + xDir[i];
+            for (int d = 0; d < DIR_SIZE; d++) {
+                int ny = y + DIR_Y[d];
+                int nx = x + DIR_X[d];
                 
-                if (nextX >= 0 && nextX < xLen && 
-                    nextY >= 0 && nextY < yLen &&
-                    mapsCopy[nextY][nextX] == 1 &&
-                    !isVisited[nextY][nextX]) {
-                    isVisited[nextY][nextX] = true;
-                    que.offer(new Move(nextY, nextX, m.cnt));
-                }
+                if (ny < 0 || ny == n || nx < 0 || nx == m)
+                    continue;
+                if (visit[ny][nx] || maps[ny][nx] != 1)
+                    continue;
+                
+                visit[ny][nx] = true;
+                que.offer(new int[] {ny, nx, move + 1});
             }
         }
-        return -1;
-    }
-    
-    private class Move {
-        int y;
-        int x;
-        int cnt;
         
-        public Move(int y, int x, int cnt) {
-            this.y = y;
-            this.x = x;
-            this.cnt = cnt;
-        }
+        return -1;
     }
 }
