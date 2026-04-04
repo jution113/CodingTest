@@ -1,10 +1,10 @@
 # [level 3] 부대복귀 - 132266 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/132266) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/132266?gad_source=1&gad_campaignid=23716289893&gbraid=0AAAAAC_c4nBUglikiHArJU44JCnKHqJ7F&gclid=Cj0KCQjwyr3OBhD0ARIsALlo-OnKwqhC8icJGoFISSTc0GR24CvoNdNuVNqCdorD8uvyD0iRUjUuQH0aArz7EALw_wcB) 
 
 ### 성능 요약
 
-메모리: 191 MB, 시간: 213.14 ms
+메모리: 182 MB, 시간: 203.16 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2026년 02월 24일 16:34:38
+2026년 04월 04일 17:18:05
 
 ### 문제 설명
 
