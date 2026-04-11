@@ -1,38 +1,37 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
-    static int N;
-    static int M;
-    static ArrayList<Integer> peeks = new ArrayList<> ();
-    static StringBuilder sb = new StringBuilder();
-
+    private static int n;
+    private static int m;
+    private static StringBuilder sb;
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        solve(1, 0);
-        System.out.print(sb);
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+        
+        sb = new StringBuilder();
+        
+        comb(1, 0, new ArrayList<Integer> ());
+        
+        System.out.println(sb.toString());
     }
-
-    static void solve(int start, int peekCnt) {
-        if (peekCnt == M) {
-            makeRes();
-            return ;
+    
+    private static void comb(int start, int depth, ArrayList<Integer> peeks) {
+        if (depth == m) {
+            for (int peek : peeks) {
+                sb.append(peek + " ");
+            }
+            sb.append("\n");
+            return;
         }
-
-        for (int i = start; i <= N; i++) {
+        
+        for (int i = start; i <= n; i++) {
             peeks.add(i);
-            solve(i, peekCnt + 1);
+            comb(i, depth + 1, peeks);
             peeks.remove(peeks.size() - 1);
         }
-    }
-
-    static void makeRes() {
-        for (Integer num : peeks) {
-            sb.append(num).append(" ");
-        }
-        sb.append("\n");
     }
 }
