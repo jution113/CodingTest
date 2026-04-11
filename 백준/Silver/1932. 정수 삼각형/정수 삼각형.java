@@ -4,33 +4,33 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        int[][] valArr = new int[N + 1][N + 1];
-        for (int n = 1; n <= N; n++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            for (int i = 1; i <= n; i++) {
-                valArr[n][i] = Integer.parseInt(st.nextToken());
+        int n = Integer.parseInt(st.nextToken());
+        
+        // 초기화
+        int[][] vals = new int[n + 1][n + 1];
+        for (int h = 1; h <= n; h++) {
+            st = new StringTokenizer(br.readLine());
+            
+            for (int w = 1; w <= h; w++) {
+                vals[h][w] = Integer.parseInt(st.nextToken());
             }
         }
         
-        int[][] dp = new int[N + 1][N + 1];
-        for (int i = 0; i <= N; i++) {
-            Arrays.fill(dp[i], 1000);
-        }
-        
-        for (int n = 1; n <= N; n++) {
-            for (int i = 1; i <= n; i++) {
-                int v1 = dp[n - 1][i - 1] == 1000 ? 0 : dp[n - 1][i - 1];
-                int v2 = dp[n - 1][i] == 1000 ? 0 : dp[n - 1][i];
-                dp[n][i] = valArr[n][i] + Math.max(v1, v2);
+        // 메모이제이션을 통한 최대값 갱신
+        int[][] maxValsMemo = new int[n + 1][n + 1];
+        for (int h = 1; h <= n; h++) {
+            for (int w = 1; w <= n; w++) {
+                maxValsMemo[h][w] = vals[h][w] + Math.max(maxValsMemo[h - 1][w - 1], maxValsMemo[h - 1][w]);
             }
         }
         
-        int res = Integer.MIN_VALUE;
-        for (int i = 1; i <= N; i++) {
-            res = Math.max(dp[N][i], res);
+        int maxVal = 0;
+        for (int val : maxValsMemo[n]) {
+            maxVal = Math.max(maxVal, val);
         }
-        System.out.println(res);
+        
+        System.out.println(maxVal);
     }
 }
