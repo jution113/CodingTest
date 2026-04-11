@@ -2,77 +2,63 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int[][] graph;
-    
+    private static HashMap<Character, char[]> tree;
+    private static StringBuilder sb;
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int nodeSize = Integer.parseInt(st.nextToken());
+        int n = Integer.parseInt(st.nextToken());
         
-        graph = new int[nodeSize][2];
-        
-        for (int i = 0; i < nodeSize; i++) {
+        tree = new HashMap<> ();
+        for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            int parent = st.nextToken().charAt(0) - 'A';
+            char p = st.nextToken().charAt(0);
+            char r = st.nextToken().charAt(0);
+            char l = st.nextToken().charAt(0);
             
-            String leftStr = st.nextToken();
-            int left = leftStr.equals(".") ? -1 : leftStr.charAt(0) - 'A';
-            
-            String rightStr = st.nextToken();
-            int right = rightStr.equals(".") ? -1 : rightStr.charAt(0) - 'A';
-            
-            graph[parent][0] = left;
-            graph[parent][1] = right;
+            tree.put(p, new char[] {r, l});
         }
         
-        StringBuilder sb = new StringBuilder();
-        preOrder(0, sb);
+        sb = new StringBuilder();
+        
+        preOrder('A');
         sb.append("\n");
-        inOrder(0, sb);
+        inOrder('A');
         sb.append("\n");
-        postOrder(0, sb);
-        sb.append("\n");
+        postOrder('A');
         
         System.out.println(sb.toString());
     }
     
-    private static void preOrder(int parent, StringBuilder sb) {
-        char c = (char) (65 + parent);
-        sb.append(c);
+    private static void preOrder(char start) {
+        sb.append(start);
         
-        if (graph[parent][0] != -1) {
-            preOrder(graph[parent][0], sb);
-        }
+        char[] children = tree.get(start);
+        char r = children[0];
+        char l = children[1];
         
-        if (graph[parent][1] != -1) {
-            preOrder(graph[parent][1], sb);
-        }
+        if (r != '.') preOrder(r);
+        if (l != '.') preOrder(l);
     }
     
-    private static void inOrder(int parent, StringBuilder sb) {
-        if (graph[parent][0] != -1) {
-            inOrder(graph[parent][0], sb);
-        }
+    private static void inOrder(char start) {
+        char[] children = tree.get(start);
+        char r = children[0];
+        char l = children[1];
         
-        char c = (char) (65 + parent);
-        sb.append(c);
-        
-        if (graph[parent][1] != -1) {
-            inOrder(graph[parent][1], sb);
-        }
+        if (r != '.') inOrder(r);
+        sb.append(start);
+        if (l != '.') inOrder(l);   
     }
     
-    private static void postOrder(int parent, StringBuilder sb) {
-        if (graph[parent][0] != -1) {
-            postOrder(graph[parent][0], sb);
-        }
+    private static void postOrder(char start) {        
+        char[] children = tree.get(start);
+        char r = children[0];
+        char l = children[1];
         
-        if (graph[parent][1] != -1) {
-            postOrder(graph[parent][1], sb);
-        }
-        
-        char c = (char) (65 + parent);
-        sb.append(c);
+        if (r != '.') postOrder(r);
+        if (l != '.') postOrder(l);
+        sb.append(start);
     }
 }
