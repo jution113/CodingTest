@@ -1,49 +1,53 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {    
+public class Main {
+    private static final int RGB_SIZE = 3;
+    private static int n;
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        int[][] priceArr = new int[N + 1][3]; 
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
         
-        StringTokenizer st = null;
-        for (int n = 1; n <= N; n++) {
+        int[][] rgbVals = new int[n + 1][RGB_SIZE];
+        
+        for (int i = 1; i <= n; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int i = 0; i < 3; i++) {
-                priceArr[n][i] = Integer.parseInt(st.nextToken());
+            
+            for (int c = 0; c < RGB_SIZE; c++) {
+                rgbVals[i][c] = Integer.parseInt(st.nextToken());
             }
         }
         
-        int[][] dp = new int[N + 1][3];
-        for (int n = 1; n <= N; n++) {
-            for (int i = 0; i < 3; i++) {
-                int p1;
-                int p2;
+        int[][] rgbValSumsMemo = new int[n + 1][RGB_SIZE];
+        for (int i = 1; i <= n; i++) {
+            for (int c = 0; c < RGB_SIZE; c++) {
+                int val1;
+                int val2;
                 
-                switch (i) {
+                switch (c) {
                     case 0:
-                        p1 = 1;
-                        p2 = 2;
+                        val1 = rgbValSumsMemo[i - 1][c + 1];
+                        val2 = rgbValSumsMemo[i - 1][c + 2];
                         break;
                     case 1:
-                        p1 = 0;
-                        p2 = 2;
+                        val1 = rgbValSumsMemo[i - 1][c - 1];
+                        val2 = rgbValSumsMemo[i - 1][c + 1];
                         break;
                     default:
-                        p1 = 0;
-                        p2 = 1;
+                        val1 = rgbValSumsMemo[i - 1][c - 2];
+                        val2 = rgbValSumsMemo[i - 1][c - 1];
                 }
                 
-                dp[n][i] = priceArr[n][i] + Math.min(dp[n - 1][p1], dp[n - 1][p2]);
+                rgbValSumsMemo[i][c] = rgbVals[i][c] + Math.min(val1, val2);
             }
         }
         
-        int res = Integer.MAX_VALUE;
-        for (int i = 0; i < 3; i++) {
-            res = Math.min(res, dp[N][i]);
+        int minVal = Integer.MAX_VALUE;
+        for (int c = 0; c < RGB_SIZE; c++) {
+            minVal = Math.min(rgbValSumsMemo[n][c], minVal);
         }
-        
-        System.out.println(res);
+        System.out.println(minVal);
     }
 }
