@@ -1,53 +1,54 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static int N;
-    static int M;
-    static int[] src;
-    static boolean[] visited;
-    static HashSet<ArrayList<Integer>> uniqueListSet;
+    private static int n;
+    private static int m;
+    private static ArrayList<Integer> numList;
+    private static HashSet<ArrayList<Integer>> numListSet;
+    private static StringBuilder sb;
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
         
+        numList = new ArrayList<> ();
         st = new StringTokenizer(br.readLine());
-        src = new int[N];
-        for (int i = 0; i < N; i++) {
-            src[i] = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < n; i++) {
+            numList.add(Integer.parseInt(st.nextToken()));
         }
-        Arrays.sort(src);
-        visited = new boolean[N];
-        uniqueListSet = new HashSet<> ();
+        Collections.sort(numList);
         
-        comb(0, new ArrayList<> ());
+        numListSet = new HashSet<> ();
+        sb = new StringBuilder();
+        
+        permutation(0, new boolean[n], new ArrayList<> ());
+        
+        System.out.println(sb.toString());
     }
     
-    private static void comb(int depth, ArrayList<Integer> list) {
-        if (depth == M) {
-            if (!uniqueListSet.contains(list)) {
-                uniqueListSet.add(list);
-                StringBuilder sb = new StringBuilder ();
-                for (int e : list) {
-                    sb.append(e + " ");
+    private static void permutation(int depth, boolean[] visit, ArrayList<Integer> peeks) {
+        if (depth == m) {
+            if (!numListSet.contains(peeks)) {
+                numListSet.add(peeks);
+                for (int peek : peeks) {
+                    sb.append(peek + " ");
                 }
-                sb.delete(sb.length() - 1, sb.length());
-                
-                System.out.println(sb.toString());
+                sb.append("\n");
             }
+            return;
         }
         
-        for (int i = 0; i < N; i++) {
-            if (!visited[i]) {
-                visited[i] = true;
-                list.add(src[i]);
-                comb(depth + 1, list);
-                visited[i] = false;
-                list.remove(list.size() - 1);
-            }
+        for (int i = 0; i < n; i++) {
+            if (visit[i])
+                continue;
+            visit[i] = true;
+            peeks.add(numList.get(i));
+            permutation(depth + 1, visit, peeks);
+            visit[i] = false;
+            peeks.remove(peeks.size() - 1);
         }
     }
 }
