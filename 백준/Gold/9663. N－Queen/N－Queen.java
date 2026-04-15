@@ -1,67 +1,56 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
-    private static final int DIR_SIZE = 4;
-    private static final int[] DIR_Y = {-1, 1, 1, -1};
-    private static final int[] DIR_X = {1, 1, -1, -1};
-    
+public class Main {    
     private static int method;
     private static int n;
-    private static int map[][];
+    private static int[] queenPos;
     private static boolean[] xVisit;
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         n = Integer.parseInt(br.readLine());
         
-        map = new int[n][n];
+        queenPos = new int[n];
+        Arrays.fill(queenPos, -1);
         xVisit = new boolean[n];
 
         method = 0;
-        dfs(0, 0);
+        dfs(0);
         
         System.out.println(method);
     }
     
-    private static void dfs(int depth, int y) {
-        if (depth == n) {
+    private static void dfs(int y) {
+        if (y == n) {
             method++;
             return ;
         }
 
         for (int x = 0; x < n; x++) {
-            // 세로 검사
-            if (xVisit[x])
-                continue;
-            // 대각선 검사
-            if (!crossCheck(y, x))
+            if (xVisit[x] || !crossCheck(y, x))
                 continue;
                 
             xVisit[x] = true;
-            map[y][x] = 1;
-                
-            dfs(depth + 1, y + 1);
-                
+            queenPos[y] = x;
+            dfs(y + 1);
+            queenPos[y] = -1;
             xVisit[x] = false;
-            map[y][x] = 0;
         }
     }
     
     private static boolean crossCheck(int y, int x) {
-        for (int d = 0; d < DIR_SIZE; d++) {
-            int ny = y;
-            int nx = x;
-            
-            while ((0 <= ny && ny < n) && (0 <= nx && nx < n)) {
-                if (map[ny][nx] == 1)
-                    return false;
-                
-                ny += DIR_Y[d];
-                nx += DIR_X[d];
+        int rx = x;
+        int lx = x;
+        
+        for (int i = 1; i <= y; i++) {
+            if (rx + 1 < n) {
+                if (queenPos[y - i] == ++rx) return false;
+            }
+            if (lx - 1 >= 0) {
+                if (queenPos[y - i] == --lx) return false;
             }
         }
-        
         return true;
     }
 }
