@@ -2,85 +2,67 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int[][] map;
-    static ArrayList<Position> homes = new ArrayList<>();
-    static ArrayList<Position> stores = new ArrayList<>();
-    static boolean[] selected;
-    static int min = Integer.MAX_VALUE;
-
+    private static int n;
+    private static int m;
+    private static int minDisSum;
+    private static ArrayList<int[]> homeList;
+    private static ArrayList<int[]> chickenList;
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-
-        map = new int[n][n];
-
-        for(int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
-
-            for(int j = 0; j < n; j++) {
-                int input = Integer.parseInt(st.nextToken());
-
-                if(input == 1) {
-                    homes.add(new Position(i, j));
-                } else if(input == 2) {
-                    stores.add(new Position(i, j));
-                }
-
-                map[i][j] = input;
-            }
-        }
-
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
         
-        selected = new boolean[stores.size()];
-
-        select(0, 0, m);
-
-        System.out.println(min);
-    }
-
-    static class Position {
-        int col;
-        int row;
-
-        public Position(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    static void select(int start, int peekCnt, int targetCnt) {
-        if(peekCnt == targetCnt) {
-            int totalDistance = 0;
+        homeList = new ArrayList<> ();
+        chickenList = new ArrayList<> ();
+        
+        // map 초기화
+        for (int y = 0; y < n; y++) {
+            st = new StringTokenizer(br.readLine());
             
-            for(Position home : homes) {
-                totalDistance += getMinDistance(home);
+            for (int x = 0; x < n; x++) {
+                int i = Integer.parseInt(st.nextToken());
+                
+                if (i == 1) {
+                    homeList.add(new int[] {y, x});
+                } else if (i == 2) {
+                    chickenList.add(new int[] {y, x});
+                }
             }
-
-            if(min > totalDistance) min = totalDistance;
+        }
+        
+        minDisSum = Integer.MAX_VALUE;
+        comb(0, 0, new ArrayList<int[]> ());
+        
+        System.out.println(minDisSum);
+    }
+    
+    private static void comb(int start, int depth, ArrayList<int[]> peeks) {
+        if (depth == m) {
+            minDisSum = Math.min(minDisSum, getDisSum(peeks));
             return;
         }
-
-        for(int i = start; i < stores.size(); i++) {
-            selected[i] = true;
-            select(i + 1, peekCnt + 1, targetCnt);
-            selected[i] = false;
+        
+        for (int i = start; i < chickenList.size(); i++) {
+            peeks.add(chickenList.get(i));
+            comb(i + 1, depth + 1, peeks);
+            peeks.remove(peeks.size() - 1);
         }
     }
-
-    static int getMinDistance(Position home) {
-        int min = Integer.MAX_VALUE;
-
-        for(int i = 0; i < selected.length; i++) {
-            if(selected[i]) {
-                Position store = stores.get(i);
-                int distance = Math.abs(store.row - home.row) + Math.abs(store.col - home.col);
-                if(distance < min) min = distance;
+    
+    private static int getDisSum(ArrayList<int[]> peeks) {
+        int disSum = 0;
+        
+        for (int[] home : homeList) {
+            int minDis = Integer.MAX_VALUE;
+            
+            for (int[] chicken : peeks) {
+                minDis = Math.min(minDis,  Math.abs(chicken[0] - home[0]) + Math.abs(chicken[1] - home[1]));
             }
+            disSum += minDis;
         }
-
-        return min;
+        
+        return disSum;
     }
 }
