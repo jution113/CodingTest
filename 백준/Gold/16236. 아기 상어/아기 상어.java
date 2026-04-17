@@ -2,134 +2,122 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    private static final int[] DIR_Y = {-1, 0, 1, 0};
-    private static final int[] DIR_X = {0, -1, 0, 1};
     private static final int DIR_SIZE = 4;
+    private static final int[] DIR_Y = {-1, 0, 1, 0};
+    private static final int[] DIR_X = {0, 1, 0, -1};
     
-    private static class MoveInfo implements Comparable<MoveInfo> {
-        int moveCnt;
-        int y;
-        int x;
+    private static int n;
+    private static int minMoveSum;
+    private static int[][] map;
+    
+    private static class Shark {
+        int[] pos;
+        int move;
         int size;
-        int eatCnt;
+        int eat;
         
-        public MoveInfo(int moveCnt, int y, int x, int size, int eatCnt) {
-            this.moveCnt = moveCnt;
-            this.y = y;
-            this.x = x;
-            this.size = size;
-            this.eatCnt = eatCnt;
+        public Shark(int[] pos) {
+            this.pos = pos;
+            this.move = 0;
+            this.size = 2;
+            this.eat = 0;
         }
         
-        @Override
-        public int compareTo(MoveInfo o) {
-            if (this.moveCnt == o.moveCnt) {
-                if (this.y == o.y) {
-                    return Integer.compare(this.x, o.x);
-                } else {
-                    return Integer.compare(this.y, o.y);
-                }    
-            } else {
-                return Integer.compare(this.moveCnt, o.moveCnt);
-            }
+        public Shark(int[] pos, int move, int size, int eat) {
+            this.pos = pos;
+            this.move = move;
+            this.size = size;
+            this.eat = eat;
         }
     }
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+
+        Shark shark = null;
         
         // 맵 초기화
-        int[][] map = new int[n][n];
-        StringTokenizer st = null;
-        MoveInfo start = null;
-        
-        for (int r = 0; r < n; r++) {
+        map = new int[n][n];
+        for (int y = 0; y < n; y++) {
             st = new StringTokenizer(br.readLine());
-
-            for (int c = 0; c < n; c++) {
-                map[r][c] = Integer.parseInt(st.nextToken());
-                // 상어 정보 초기화
-                if (map[r][c] == 9) {
-                    start = new MoveInfo(0, r, c, 2, 0);
-                    map[r][c] = 0;
-                }
+            for (int x = 0; x < n; x++) {
+                map[y][x] = Integer.parseInt(st.nextToken());
+                if (map[y][x] == 9) shark = new Shark(new int[] {y, x});
             }
         }
         
-        // 탐색
-        MoveInfo next = findNext(n, map, start);
-        
-        while (next != null) {
-            start = next;
-            next = findNext(n, map, start);
+        minMoveSum = 0;
+        PriorityQueue<Shark> eatableList = getEatableList(shark);
+
+        while (!eatableList.isEmpty()) {
+            map[shark.pos[0]][shark.pos[1]] = 0;
+            shark = eatableList.poll();
+            shark = moveShark(shark);
+            eatableList = getEatableList(shark);
         }
         
-        System.out.println(start.moveCnt);
+        System.out.println(shark.move);
     }
-    
-    private static MoveInfo findNext(int n, int[][] map, MoveInfo start) {
-        boolean[][] visited = new boolean[n][n];
-        visited[start.y][start.x] = true;
         
-        PriorityQueue<MoveInfo> pq = new PriorityQueue<> ();
+    private static PriorityQueue<Shark> getEatableList(Shark start) {
+        PriorityQueue<Shark> eatable = new PriorityQueue<> ((a, b) -> {
+            if (a.pos[0] == b.pos[0]) {
+                return a.pos[1] - b.pos[1];
+            }
+            return a.pos[0] - b.pos[0];
+        });
         
-        ArrayDeque<MoveInfo> que = new ArrayDeque<> ();
+        ArrayDeque<Shark> que = new ArrayDeque<> ();
         que.offer(start);
         
+        boolean[][] visit = new boolean[n][n];
+        visit[start.pos[0]][start.pos[1]] = true;
+        
+        int minMove = Integer.MAX_VALUE;
+        
         while (!que.isEmpty()) {
+            Shark cur = que.poll();
+            int y = cur.pos[0];
+            int x = cur.pos[1];
             
-            MoveInfo cur = que.poll();
-            int size = cur.size;
-            int y = cur.y;
-            int x = cur.x;
-            
-            for (int i = 0; i < DIR_SIZE; i++) {
-                int nextY = y + DIR_Y[i];
-                int nextX = x + DIR_X[i];
+            for (int d = 0; d < DIR_SIZE; d++) {
+                int ny = y + DIR_Y[d];
+                int nx = x + DIR_X[d];
                 
-                // 이동 검사
-                if (nextY < 0 || nextY == n || nextX < 0 || nextX == n) {
-                    // 맵 경계 검사
+                // 물리적 조건 검사
+                if (ny < 0 || ny == n || nx < 0 || nx == n)
                     continue;
-                } else if (visited[nextY][nextX]) {
-                    // 중복 방문 여부 검사
+                // 논리적 상태 검사
+                if (visit[ny][nx] || map[ny][nx] == 9 || map[ny][nx] > cur.size || cur.move + 1 > minMove)
                     continue;
-                } else if (map[nextY][nextX] > size) {
-                    // 물고기 크기를 고려한 방문 가능 여부 검사
-                    continue;
+                
+                Shark next = new Shark(new int[] {ny, nx}, cur.move + 1, cur.size, cur.eat);
+                
+                if (0 < map[ny][nx] && map[ny][nx] < cur.size) {
+                    minMove = cur.move + 1;
+                    eatable.add(next);
                 }
                 
-                visited[nextY][nextX] = true;
-                MoveInfo next = new MoveInfo(cur.moveCnt + 1, nextY, nextX, size, cur.eatCnt);
-
-                // 먹을 수 있는 물고기 후보 추가
-                if (map[nextY][nextX] > 0 && map[nextY][nextX] < size) {
-                    pq.offer(next);
-                    continue;
-                }
-
-                // 계속 탐색
                 que.offer(next);
+                visit[ny][nx] = true;
             }
         }
         
-        // 종료 조건 탐색
-        if (pq.isEmpty()) {
-            // 모든 탐색 완료(방문할 곳 없음)
-            return null;
+        return eatable;
+    }
+    
+    private static Shark moveShark(Shark shark) {
+        int y = shark.pos[0];
+        int x = shark.pos[1];
+        map[y][x] = 9;
+        
+        if (shark.size == ++shark.eat) {
+            shark.size++;
+            shark.eat = 0;
         }
         
-        MoveInfo target = pq.poll();
-        map[target.y][target.x] = 0;
-            
-        int eatCnt = target.eatCnt + 1;
-        int size = target.size;
-            
-        if (eatCnt == size) {
-            size++;
-            eatCnt = 0;
-        }
-        return new MoveInfo(target.moveCnt, target.y, target.x, size, eatCnt);
+        return shark;
     }
 }
