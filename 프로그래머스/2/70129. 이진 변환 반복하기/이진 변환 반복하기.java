@@ -1,40 +1,40 @@
-import java.io.*;
 import java.util.*;
 
 class Solution {
     public int[] solution(String s) {
-        int[] answer = {0, 0};
-        int changedSLen = 0;
-        
-        for (char c : s.toCharArray()) {
-            if (c == '1')
-                changedSLen++;
+        if (s.equals("1")) {
+            return new int[] {0, 0};
         }
         
-        answer[0] = 1;
-        answer[1] = s.length() - changedSLen;
+        String s2 = s.replace("0", "");
+        String binary = intToBinary(s2.length());
         
-        // s가 1이 아니라면(s의 길이 1은, 곧 값 1을 의미함)
-        while (changedSLen > 1) {
-            int totalLen = 0;
-            int oneCnt = 0;
-
-            // 변환된 s의 길이를 2진법으로 변환 시, 문자열 '1'의 갯수만 계산
-            while (changedSLen > 1) {
-                if (changedSLen % 2 == 1)
-                    oneCnt++;
-                changedSLen /= 2;
-                totalLen++;
-            }
-            if (changedSLen == 1)
-                    oneCnt++;
-            totalLen++;
+        int cnt = 1; 
+        int len = s.length() - s2.length();
+        
+        System.out.println(binary);
+        
+        while (!binary.equals("1")) {
+            String newS = binary;
+            String newS2 = newS.replace("0", "");
+            binary = intToBinary(newS2.length());
             
-            answer[0]++;
-            answer[1] += totalLen - oneCnt;
-            changedSLen = oneCnt;
+            cnt++; 
+            len += newS.length() - newS2.length();
         }
         
-        return answer;
+        return new int[] {cnt, len};
+    }
+    
+    private String intToBinary(int n) {
+        StringBuilder binary = new StringBuilder();
+        
+        while (n > 1) {
+            binary.append(n % 2);
+            n /= 2;
+        }
+        binary.append(n);
+        
+        return binary.reverse().toString();
     }
 }
