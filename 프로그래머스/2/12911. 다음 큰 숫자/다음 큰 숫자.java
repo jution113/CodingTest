@@ -1,12 +1,14 @@
+import java.util.*;
+
 class Solution {
     public int solution(int n) {
-        int nOneCnt = 0;
+        int nBitCnt = Integer.bitCount(n);
+        int answer = n + 1;
         
-        nOneCnt =  Integer.bitCount(n);
-        do {
-            n++;
-        } while (nOneCnt != Integer.bitCount(n));
+        while (nBitCnt != Integer.bitCount(answer)) {
+            answer++;
+        }
         
-        return n;
+        return answer;
     }
 }
