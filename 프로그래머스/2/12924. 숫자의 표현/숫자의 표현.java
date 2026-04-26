@@ -1,28 +1,23 @@
-import java.io.*;
 import java.util.*;
 
 class Solution {
     public int solution(int n) {
-        int answer = 0;
-        int start = 1;
-        int end = 1;
+        int l = 0;
+        int r = 1;
         int sum = 1;
+        int answer = 0;
         
-        while (start <= n) {
-            if (sum == n) {
-                answer++;
-                sum -= start;
-                start++;
-            } else if (sum < n) {
-                end++;
-                sum += end;
+        while (r <= n) {
+            if (sum <= n) {
+                if (sum == n) answer++;
+                r++;
+                sum += r;
             } else {
-                sum -= start;
-                start++;
+                sum -= l;
+                l++;
             }
         }
         
-        // 자기 자신의 수인 n을 추가해서 반환
         return answer;
     }
 }
