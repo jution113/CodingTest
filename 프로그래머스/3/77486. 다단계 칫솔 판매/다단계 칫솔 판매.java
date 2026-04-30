@@ -1,34 +1,55 @@
 import java.util.*;
 
 class Solution {
-    public int[] solution(String[] enroll, String[] referral, String[] seller, int[] amount){ 
-        Map<String, String> enrollReferralMap = new HashMap<> ();
-        Map<String, Integer> enrollTotalMoneyMap = new HashMap<> ();
+    private HashMap<String, Integer> idxByEnrolled;
+    private HashMap<String, String> referralByEnrolled;
+    private int[] answer;
+    
+    private class Node {
+        String name;
+        int income;
         
-        for(int i = 0; i < enroll.length; i++) {
-            enrollReferralMap.put(enroll[i], referral[i]);
-            enrollTotalMoneyMap.put(enroll[i], 0);
+        public Node(String name, int income) {
+            this.name = name;
+            this.income = income;
+        }
+    }
+    
+    public int[] solution(String[] enroll, String[] referral, String[] seller, int[] amount) {
+        idxByEnrolled = new HashMap<> ();
+        referralByEnrolled = new HashMap<> ();
+        int n = enroll.length;
+        answer = new int[n];
+        
+        for (int i = 0; i < n; i++) {
+            idxByEnrolled.put(enroll[i], i);
+            if (referral[i].equals("-")) continue;
+            referralByEnrolled.put(enroll[i], referral[i]);
         }
         
-        for(int i = 0; i < seller.length; i++) {
-            String name = seller[i];
-            int sales = amount[i] * 100;
-            int shareMoney = sales / 10;
-            int totalMoney = enrollTotalMoneyMap.getOrDefault(name, 0) + sales - shareMoney;
-            enrollTotalMoneyMap.put(name, totalMoney);
-            
-            while(shareMoney > 0 && !enrollReferralMap.get(name).equals("-")) {
-                name = enrollReferralMap.get(name);
-                totalMoney = enrollTotalMoneyMap.get(name);
-                enrollTotalMoneyMap.put(name, totalMoney + shareMoney - shareMoney / 10);
-                shareMoney = shareMoney / 10;
-            }
-        }
-
-        int[] answer = new int[enroll.length];
-        
-        for(int i = 0; i < enroll.length; i++) answer[i] = enrollTotalMoneyMap.get(enroll[i]);
+        bfs(seller, amount);
         
         return answer;
+    }
+    
+    private void bfs(String[] seller, int[] amount) {
+        ArrayDeque<Node> q = new ArrayDeque<> ();
+        
+        for (int i = 0; i < seller.length; i++) {
+            q.offer(new Node(seller[i], amount[i] * 100));
+        }
+        
+        while (!q.isEmpty()) {
+            Node cur = q.poll();
+            int div = cur.income / 10;
+            
+            answer[idxByEnrolled.get(cur.name)] += cur.income - div; 
+
+            if (div == 0)
+                continue;
+            
+            if (referralByEnrolled.containsKey(cur.name))
+                q.offer(new Node(referralByEnrolled.get(cur.name), div));
+        }
     }
 }
