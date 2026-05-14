@@ -1,51 +1,66 @@
 import java.util.*;
 
 class Solution {
-    public int solution(int n, int[][] results) {
-        // 그래프 초기화
-        int[][] graph = new int[n + 1][n + 1];
-        for (int i = 0; i < results.length; i++) {
-            int winner = results[i][0];
-            int loser = results[i][1];
-            
-            // graph 값: 1(승리), -1(패배), 0(알 수 없음)
-            graph[winner][loser] = 1;
-            graph[loser][winner] = -1;
+    private ArrayDeque<int[]> que;
+    private ArrayList<GameInfo>[] graph;
+    private HashMap<Integer, HashSet<Integer>> map;
+
+    private static class GameInfo {
+        int target;
+        boolean isWin;
+        
+        public GameInfo(int target, boolean isWin) {
+            this.target = target;
+            this.isWin = isWin;
         }
+    }
+    
+    public int solution(int n, int[][] results) {
+        que = new ArrayDeque<> ();
+        map = new HashMap<> ();
+        graph = new ArrayList[n + 1];
+        for (int i = 1; i <= n; i++) {
+            graph[i] = new ArrayList<> ();
+            // [0]: start, [1]: cur, [2]: dir(0: win, 1: lose)
+            que.offer(new int[] {i, i, 0});
+            que.offer(new int[] {i, i, 1});
+            map.put(i, new HashSet<> ());
+        }
+        
+        for (int[] result : results) {
+            int a = result[0];
+            int b = result[1];
+            graph[a].add(new GameInfo(b, true));
+            graph[b].add(new GameInfo(a, false));
+        }
+        
+        bfs();
 
         int answer = 0;
         
         for (int i = 1; i <= n; i++) {
-            int winCnt = bfs(i, graph, n, 1);
-            int loseCnt = bfs(i, graph, n, -1);
-            
-            if (winCnt + loseCnt == n - 1)
-                answer++;
+            if (map.get(i).size() == n -1) answer++;
         }
         
         return answer;
     }
     
-    private int bfs(int start, int[][] graph, int n, int gameResult) {
-        boolean[] visit = new boolean[n + 1];
-        ArrayDeque<Integer> que = new ArrayDeque<> ();
-        que.offer(start);
-        visit[start] = true;
-        
-        int cnt = 0;
-        
+    private void bfs() {
         while (!que.isEmpty()) {
-            int cur = que.poll();
+            int[] node = que.poll();
+            int start = node[0];
+            int cur = node[1];
+            int dir = node[2];
             
-            for (int next = 1; next <= n; next++) {
-                if (visit[next] || graph[cur][next] != gameResult)
-                    continue;
-                que.offer(next);
-                visit[next] = true;
-                cnt++;
+            for (GameInfo gameInfo : graph[cur]) {
+                if (dir == 0 && gameInfo.isWin && !map.get(start).contains(gameInfo.target)) {
+                    que.offer(new int[] {start, gameInfo.target, dir});
+                    map.get(start).add(gameInfo.target);
+                } else if (dir == 1 && !gameInfo.isWin && !map.get(start).contains(gameInfo.target)) {
+                    que.offer(new int[] {start, gameInfo.target, dir});
+                    map.get(start).add(gameInfo.target);
+                }
             }
         }
-        
-        return cnt;
     }
 }
