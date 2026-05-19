@@ -1,63 +1,59 @@
 import java.util.*;
 
 class Solution {
-    private int[][] graph;
     private int n;
+    private ArrayList<Node>[] graph;
     
-    public int solution(int n, int s, int a, int b, int[][] fares) {
-        graph = new int[n + 1][n + 1];
-        this.n = n;
+    private class Node {
+        int num;
+        int dis;
         
-        for (int[] fare : fares) {
-            graph[fare[0]][fare[1]] = fare[2];
-            graph[fare[1]][fare[0]] = fare[2];
+        public Node(int num, int dis) {
+            this.num = num;
+            this.dis = dis;
         }
-        
-        int[] sToTransFares = new int[n + 1];
-        int[] aToTransFares = new int[n + 1];
-        int[] bToTransFares = new int[n + 1];
-        
-        System.out.println(n);
-        
-        Arrays.fill(sToTransFares, Integer.MAX_VALUE);
-        Arrays.fill(aToTransFares, Integer.MAX_VALUE);
-        Arrays.fill(bToTransFares, Integer.MAX_VALUE);
-        
-        dijkstra(s, sToTransFares);
-        dijkstra(a, aToTransFares);
-        dijkstra(b, bToTransFares);
-        
-        int minFares = Integer.MAX_VALUE;
-        
-        for (int i = 1; i <= n; i++) {
-            int fare = sToTransFares[i] + aToTransFares[i] + bToTransFares[i];
-            minFares = Math.min(minFares, fare);
-        }
-        
-        return minFares;
     }
     
-    private void dijkstra(int start, int[] minFareMemos) {
-        minFareMemos[start] = 0;
+    public int solution(int n, int s, int a, int b, int[][] fares) {
+        this.n = n;
+        graph = new ArrayList[n + 1];
+        for (int i = 0; i <= n; i++) graph[i] = new ArrayList<> ();
+        for (int[] f : fares) {
+            graph[f[0]].add(new Node(f[1], f[2]));
+            graph[f[1]].add(new Node(f[0], f[2]));
+        }
+
+        int[] sToAllMinDis = dijkstra(s);
+        int answer = Integer.MAX_VALUE;
         
-        ArrayDeque<int[]> que = new ArrayDeque<> ();
-        que.offer(new int[] {start, 0});
+        for (int trans = 1; trans <= n; trans++) {
+            int[] transToAllMinDis = dijkstra(trans);
+            answer = Math.min(answer, sToAllMinDis[trans] + transToAllMinDis[a] + transToAllMinDis[b]);
+        }
         
-        while (!que.isEmpty()) {
-            int[] curNode = que.poll();
-            int curNum = curNode[0];
-            int fareSum = curNode[1];
+        return answer;
+    }
+    
+    private int[] dijkstra(int s) {
+        int[] minDis = new int[n + 1];
+        Arrays.fill(minDis, Integer.MAX_VALUE);
+        minDis[s] = 0;
+        
+        PriorityQueue<Node> pq = new PriorityQueue<> ((a, b) -> {
+            return Integer.compare(a.dis, b.dis);
+        });
+        pq.offer(new Node(s, 0));
+        
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
             
-            for (int nextNum = 1; nextNum <= n; nextNum++) {
-                int nextFare = graph[curNum][nextNum];
-                if (nextFare == 0) continue;
-                
-                int nextFareSum = fareSum + nextFare;
-                if (nextFareSum >= minFareMemos[nextNum]) continue;
-                
-                minFareMemos[nextNum] = nextFareSum;
-                que.offer(new int[] {nextNum, nextFareSum});
+            for (Node next : graph[cur.num]) {
+                if (cur.dis + next.dis >= minDis[next.num]) continue;
+                minDis[next.num] = cur.dis + next.dis;
+                pq.offer(new Node(next.num, cur.dis + next.dis));
             }
         }
+        
+        return minDis;
     }
 }
