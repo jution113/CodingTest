@@ -24,11 +24,13 @@ class Solution {
         }
 
         int[] sToAllMinDis = dijkstra(s);
+        int[] aToAllMinDis = dijkstra(a);
+        int[] bToAllMinDis = dijkstra(b);
         int answer = Integer.MAX_VALUE;
         
         for (int trans = 1; trans <= n; trans++) {
             int[] transToAllMinDis = dijkstra(trans);
-            answer = Math.min(answer, sToAllMinDis[trans] + transToAllMinDis[a] + transToAllMinDis[b]);
+            answer = Math.min(answer, sToAllMinDis[trans] + aToAllMinDis[trans] + bToAllMinDis[trans]);
         }
         
         return answer;
