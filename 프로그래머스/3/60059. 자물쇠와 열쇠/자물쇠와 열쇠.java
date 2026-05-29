@@ -1,78 +1,86 @@
 import java.util.*;
 
 class Solution {
-    private int n;
-    private int m;
     private int[][] lock;
     
     public boolean solution(int[][] key, int[][] lock) {
-        n = lock.length;
-        m = key.length;
         this.lock = lock;
         
-        ArrayList<int[][]> keys = new ArrayList<> ();
-        keys.add(copyMap(key));
+        ArrayList<int[][]> keyList = new ArrayList<> ();
+        keyList.add(copyTable(key));
         for (int i = 0; i < 3; i++) {
-            int[][] rotatedKey = new int[m][m];
-            
-            for (int y = 0; y < m; y++) {
-                for (int x = 0; x < m; x++)
-                    rotatedKey[x][m - 1 - y] = key[y][x];
-            }
-            key = rotatedKey;
-            keys.add(copyMap(key));
+            rotateTable(key);
+            keyList.add(copyTable(key));
         }
         
-        for (int[][] k : keys) {
-            // lock에서 key를 대조해볼 자리 선정
-            for (int ly = 0; ly < n; ly++) {
-                for (int lx = 0; lx < n; lx++) {
-                    // key를 하나씩 대조해볼 시작 자리 선정
-                    for (int ky = 0; ky < m; ky++) {
-                        for (int kx = 0; kx < m; kx++) {
-                            if (validateKey(k, new int[] {ky, kx}, new int[] {ly, lx})) return true;
+        int hole = countHole(lock);
+        int n = lock.length;
+        int m = key.length;
+        
+        for (int[][] rotatedKey : keyList) {
+            
+            for (int sy = 0 - (m - 1); sy < n; sy++) {
+                keyCheck:
+                for (int sx = 0 - (m - 1); sx < n; sx++) {
+                    int fill = 0;
+
+                    for (int keyY = 0; keyY < m; keyY++) {
+                        int y = sy + keyY;
+                        for (int keyX = 0; keyX < m; keyX++) {
+                            int x = sx + keyX;
+                            if (y < 0 || x < 0 || y >= n || x >= n) continue;
+                            if (lock[y][x] == 1 && rotatedKey[keyY][keyX] == 1) continue keyCheck;
+                            if (lock[y][x] == 0 && rotatedKey[keyY][keyX] == 1) fill++;
                         }
                     }
+                    
+                    if (fill == hole) return true;
                 }
             }
         }
-        
         return false;
     }
     
-    private int[][] copyMap(int[][] origin) {
-        int yLen = origin.length;
-        int xLen = origin[0].length;
+    private void rotateTable(int[][] table) {
+        int n = table.length;
+        int[][] copiedTable = copyTable(table);
         
-        int[][] copied = new int[yLen][xLen];
-
-        for (int y = 0; y < yLen; y++) {
-            copied[y] = Arrays.copyOf(origin[y], xLen);
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                table[y][x] = copiedTable[x][n - 1 - y];
+            }
         }
-        return copied;
     }
     
-    private boolean validateKey(int[][] key, int[] keyStartPos, int[] lockStartPos) {
-        int[][] copiedLock = copyMap(lock);
+    private int[][] copyTable(int[][] originTable) {
+        int n = originTable.length;
+        int[][] copiedTable = new int[n][n];
         
-        outer:
-        for (int ky = keyStartPos[0]; ky < m; ky++) {
-            int ly = lockStartPos[0] + ky - keyStartPos[0];
-            if (ly >= n) break;
-            
-            for (int kx = keyStartPos[1]; kx < m; kx++) {
-                int lx = lockStartPos[1] + kx - keyStartPos[1];
-                if (lx >= n) continue;
-                if (copiedLock[ly][lx] == 1 && key[ky][kx] == 1) break outer;
-                if (copiedLock[ly][lx] == 0 && key[ky][kx] == 1) copiedLock[ly][lx] = 1;
+        for (int i = 0; i < n; i++)
+            copiedTable[i] = Arrays.copyOf(originTable[i], n);
+        
+        return copiedTable;
+    }
+    
+    private int countHole(int[][] table) {
+        int n = table.length;
+        int hole = 0;
+        
+        for (int y = 0 ; y < n; y++) {
+            for (int x = 0 ; x < n; x++) {
+                if (table[y][x] == 0) hole++;
             }
         }
         
-        for (int y = 0; y < n; y++) {
-            for (int x = 0; x < n; x++)
-                if (copiedLock[y][x] == 0) return false;
-        }
-        
-        return true;
+        return hole;
     }
+    
+//     private void printTalbe(int[][] table) {
+//         int n = table.length;
+        
+//         System.out.println("-----");
+        
+//         for (int i = 0; i < n; i++)
+//             System.out.println(Arrays.toString(table[i]));
+//     }
 }
