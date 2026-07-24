@@ -1,10 +1,10 @@
 # [level 4] 도둑질 - 42897 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/42897?gad_source=1&gad_campaignid=22356298761&gbraid=0AAAAAC_c4nCFQuAsOwwSYRAYsokS9R_xQ&gclid=Cj0KCQjwm6POBhCrARIsAIG58CIqHvVsb7Keo9G_kwNe_vR8W6bgjOLb9uFKqWRBPMZ9DShASQCWSCoaAnUFEALw_wcB) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/42897?gad_source=1&gad_campaignid=23716289893&gbraid=0AAAAAC_c4nAD8CoZQPeW3WDVArXHoJwcK&gclid=Cj0KCQjw94bTBhDQARIsAN3vv0w8IIKBbwY_2RjiSr96ep1xV2-YGOetaj10TrG7HhiY-3QMdryJ2wEaAishEALw_wcB) 
 
 ### 성능 요약
 
-메모리: 104 MB, 시간: 22.42 ms
+메모리: 106 MB, 시간: 19.71 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2026년 03월 29일 18:08:48
+2026년 07월 24일 16:27:45
 
 ### 문제 설명
 
