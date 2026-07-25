@@ -1,61 +1,58 @@
 import java.util.*;
 
 class Solution {
-    private int n;
-    private ArrayList<Node>[] graph;
-    
-    private class Node {
-        int num;
-        int dis;
-        
-        public Node(int num, int dis) {
-            this.num = num;
-            this.dis = dis;
-        }
-    }
+    private ArrayList<int[]>[] graph;
     
     public int solution(int n, int s, int a, int b, int[][] fares) {
-        this.n = n;
         graph = new ArrayList[n + 1];
         for (int i = 0; i <= n; i++) graph[i] = new ArrayList<> ();
-        for (int[] f : fares) {
-            graph[f[0]].add(new Node(f[1], f[2]));
-            graph[f[1]].add(new Node(f[0], f[2]));
+        for (int[] fare : fares) {
+            int start = fare[0];
+            int end = fare[1];
+            int dist = fare[2];
+            
+            graph[start].add(new int[] {end, dist});
+            graph[end].add(new int[] {start, dist});
         }
+        
+        
+        int[] minDistOfS = new int[n + 1];
+        int[] minDistOfA = new int[n + 1];
+        int[] minDistOfB = new int[n + 1];
+        dijkstra(s, minDistOfS);
+        dijkstra(a, minDistOfA);
+        dijkstra(b, minDistOfB);
 
-        int[] sToAllMinDis = dijkstra(s);
-        int[] aToAllMinDis = dijkstra(a);
-        int[] bToAllMinDis = dijkstra(b);
         int answer = Integer.MAX_VALUE;
         
-        for (int trans = 1; trans <= n; trans++) {
-            int[] transToAllMinDis = dijkstra(trans);
-            answer = Math.min(answer, sToAllMinDis[trans] + aToAllMinDis[trans] + bToAllMinDis[trans]);
+        for (int mid = 1; mid <= n; mid++) {
+            int totalDist = minDistOfS[mid] + minDistOfA[mid] + minDistOfB[mid];
+            answer = Math.min(answer, totalDist);
         }
         
         return answer;
     }
     
-    private int[] dijkstra(int s) {
-        int[] minDis = new int[n + 1];
-        Arrays.fill(minDis, Integer.MAX_VALUE);
-        minDis[s] = 0;
+    private void dijkstra(int start, int[] minDist) {
+        Arrays.fill(minDist, Integer.MAX_VALUE);
+        minDist[start] = 0;
         
-        PriorityQueue<Node> pq = new PriorityQueue<> ((a, b) -> {
-            return Integer.compare(a.dis, b.dis);
+        PriorityQueue<int[]> pq = new PriorityQueue<> ((a, b) -> {
+            return Integer.compare(a[1], b[1]);
         });
-        pq.offer(new Node(s, 0));
+        pq.offer(new int[] {start, 0});
         
         while (!pq.isEmpty()) {
-            Node cur = pq.poll();
+            int[] cur = pq.poll();
             
-            for (Node next : graph[cur.num]) {
-                if (cur.dis + next.dis >= minDis[next.num]) continue;
-                minDis[next.num] = cur.dis + next.dis;
-                pq.offer(new Node(next.num, cur.dis + next.dis));
+            for (int[] next : graph[cur[0]]) {
+                int nextDist = next[1] + cur[1];
+                
+                if (minDist[next[0]] < nextDist)
+                    continue;
+                minDist[next[0]] = nextDist;
+                pq.offer(new int[] {next[0], nextDist});
             }
         }
-        
-        return minDis;
     }
 }
