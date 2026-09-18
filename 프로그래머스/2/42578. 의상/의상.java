@@ -1,35 +1,21 @@
 import java.util.*;
 
 class Solution {
-    public int solution(String[][] clothes) {
-        Map<String, Integer> typeCntMap = new HashMap<> ();
-        int answer = 0;
+    private int answer;
+    
+    public int solution(String[][] clothes) {        
+        HashMap<String, Integer> cntByCloth = new HashMap<> ();
         
-        for (String[] clothe : clothes) {
-            String name = clothe[0];
-            String type = clothe[1];
-            int cnt = 1;
-            
-            if (typeCntMap.containsKey(type))
-                cnt = typeCntMap.get(type) + 1;
-            typeCntMap.put(type, cnt);
+        for (String[] cloth : clothes) {
+            cntByCloth.put(cloth[1], cntByCloth.getOrDefault(cloth[1], 0) + 1);
         }
         
-        int[] cntArr = typeCntMap.values().stream()
-            .mapToInt(Integer::intValue)
-            .toArray();
-        int n = cntArr.length;
+        int product = 1;
         
-        for (int i = 0; i < n; i++) {
-            int cnt = cntArr[i];
-            
-            for (int j = i + 1; j < n; j++) {
-                cnt *= cntArr[j] + 1;
-            }
-            
-            answer += cnt;
+        for (int cnt : cntByCloth.values()) {
+            product *= cnt + 1;
         }
         
-        return answer;
+        return product - 1;
     }
 }
