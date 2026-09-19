@@ -2,43 +2,46 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] priorities, int location) {
-        Queue<Process> que = new ArrayDeque<> ();
-        int n = priorities.length;
+        ArrayDeque<Task> que = new ArrayDeque<> ();
+        int[] sortedpriorities = Arrays.copyOf(priorities, priorities.length);
+        Arrays.sort(sortedpriorities);
+        reverseArray(sortedpriorities);
+        int curPriorityPtr = 0;
         
         for (int i = 0; i < priorities.length; i++) {
-            que.offer(new Process(i, priorities[i]));
-            
+            que.offer(new Task(i, priorities[i]));
         }
         
-        int[] sortedPriorities = priorities;
-        Arrays.sort(sortedPriorities);
-        
-        int i = 1;
-        int answer = 0;
-        
         while (!que.isEmpty()) {
-            Process p = que.poll();
+            Task task = que.poll();
             
-            if (p.priority == sortedPriorities[n - i]) {
-                answer++;
-                
-                if (p.id == location)
-                    break;
-                
-                i++;
+            if (task.priority == sortedpriorities[curPriorityPtr]) {
+                curPriorityPtr++;
+                if (task.id == location)
+                    return curPriorityPtr;
             } else {
-                que.offer(p);
+                que.offer(task);
             }
         }
         
-        return answer;
+        return -1;
     }
     
-    static class Process {
+    private void reverseArray(int[] array) {
+        int n = array.length;
+        
+        for (int i = 0; i < n / 2; i++) {
+            int tmp = array[i];
+            array[i] = array[n - 1 - i];
+            array[n - 1 - i] = tmp;
+        }
+    }
+    
+    private class Task {
         int id;
         int priority;
         
-        public Process (int id, int priority) {
+        public Task(int id, int priority) {
             this.id = id;
             this.priority = priority;
         }
