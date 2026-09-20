@@ -1,29 +1,51 @@
 import java.util.*;
 
 class Solution {
+    private int K;
+    private PriorityQueue<Integer> orderedScoville;
+    
     public int solution(int[] scoville, int K) {
-        Queue<Long> pq = new PriorityQueue<> ();
+        this.K = K;
+        orderedScoville = new PriorityQueue<> ();
         
+        initOrderedScoville(scoville);
+        
+        return combine();
+    }
+    
+    private void initOrderedScoville(int[] scoville) {
         for (int s : scoville) {
-            pq.offer((long) s);
+            orderedScoville.offer(s);
         }
+    }
+    
+    private int combine() {
+        int combCnt = 0;
         
-        int answer = 0;
-        while (!pq.isEmpty()) {
+        while (!orderedScoville.isEmpty()) {
+            int scoville1 = orderedScoville.poll();
             
-            long s1 = pq.poll();
-            
-            if (s1 >= K) {
-                return answer;
-            }
-            
-            if (pq.isEmpty())
+            if (scoville1 >= K)
                 break;
-            long sum = s1 + pq.poll() * 2;
-            answer++;
-            pq.offer(sum);
+            
+            if (orderedScoville.isEmpty())
+                return -1;
+            
+            int scoville2 = orderedScoville.poll();
+
+            if (scoville2 >= K) {
+                combCnt++;
+                break;
+            } else {
+                orderedScoville.offer(combScoville(scoville1, scoville2));
+                combCnt++;
+            }
         }
         
-        return -1;
+        return combCnt;
+    }
+    
+    private int combScoville(int scoville1, int scoville2) {
+        return scoville1 + scoville2 * 2;
     }
 }
