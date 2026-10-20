@@ -2,60 +2,73 @@ import java.util.*;
 import java.io.*;
 
 class Solution {
-    private static int N;
-    private static int[][] posInfo;
-    private static int answer;
+    private static int T;
+    private static int n;
+    private static int minDistSum;
+    private static Point startPoint;
+    private static Point endPoint;
+    private static Point[] points;
+    private static int[][] memo;
+    
+    private static class Point {
+        int x;
+        int y;
+        
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    } 
     
 	public static void main(String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int T = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
+        StringTokenizer st;
+        StringBuilder answer = new StringBuilder();
         
-		for(int tc = 1; tc <= T; tc++) {
-            answer = Integer.MAX_VALUE;
-            N = Integer.parseInt(br.readLine());
-            posInfo = new int[N + 2][2];
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            for (int n = 0; n < N + 2; n++) {
-                posInfo[n][0] = Integer.parseInt(st.nextToken());
-                posInfo[n][1] = Integer.parseInt(st.nextToken());
+        T = Integer.parseInt(br.readLine());
+
+		for(int t = 1; t <= T; t++) {
+            n = Integer.parseInt(br.readLine());
+            st = new StringTokenizer(br.readLine());
+            startPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            endPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            memo = new int[n][1 << n];
+            points = new Point[n];
+            for (int i = 0; i < n; i++) {
+                points[i] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            	Arrays.fill(memo[i], Integer.MAX_VALUE);
             }
             
-            makePermutation(new ArrayList<> (Arrays.asList(0)), new boolean[N]);
-            sb.append("#" + tc + " " + answer + "\n" );
+            minDistSum = Integer.MAX_VALUE;
+            
+            for (int nextPoint = 0; nextPoint < n; nextPoint++) {
+                memo[nextPoint][1 << nextPoint] = getDist(startPoint, points[nextPoint]);
+                move(nextPoint, 1 << nextPoint);
+            }
+            answer.append("#" + t + " " + minDistSum + "\n");
 		}
         
-        System.out.println(sb.toString());
+        System.out.print(answer.toString());
 	}
-    
-    private static void makePermutation(ArrayList<Integer> permutation, boolean[] visited) {
-        if (permutation.size() == N + 1) {
-            permutation.add(1);
-            answer = Math.min(answer, calculrateDis(permutation));
-            permutation.remove(permutation.size() - 1);
-            return;
-        }
-         
-        for (int n = 0; n < N; n++) {
-            if (visited[n]) continue;
-            visited[n] = true;
-            permutation.add(2 + n);
-            makePermutation(permutation, visited);
-            permutation.remove(permutation.size() - 1);
-            visited[n] = false;
-        }
+        
+    private static int getDist(Point p1, Point p2) {
+        return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
     }
     
-    private static int calculrateDis(ArrayList<Integer> permutation) {        
-        int disSum = 0;
-        
-        for (int n = 0; n < permutation.size() - 1; n++) {
-            int s = permutation.get(n);
-            int e = permutation.get(n + 1);
-            
-            disSum += Math.abs(posInfo[s][0] - posInfo[e][0]) + Math.abs(posInfo[s][1] - posInfo[e][1]);
+    private static void move(int curPoint, int mask) {
+        if (mask == (1 << n) - 1) {
+            minDistSum = Math.min(memo[curPoint][mask] + getDist(points[curPoint], endPoint), minDistSum);
+            return ;
         }
         
-        return disSum;
-    } 
+        for (int nextPoint = 0; nextPoint < n; nextPoint++) {
+            if ((mask & 1 << nextPoint) != 0)
+                continue;
+            
+            if (memo[curPoint][mask] + getDist(points[curPoint], points[nextPoint]) < memo[nextPoint][mask | 1 << nextPoint]) {
+                memo[nextPoint][mask | 1 << nextPoint] = memo[curPoint][mask] + getDist(points[curPoint], points[nextPoint]);
+            	move(nextPoint, mask | 1 << nextPoint);
+            }
+        }
+    }
 }
