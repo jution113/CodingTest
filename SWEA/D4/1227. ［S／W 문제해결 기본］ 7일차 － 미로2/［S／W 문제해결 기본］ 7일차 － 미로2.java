@@ -1,72 +1,74 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
+class Solution {
+    private static final int T = 10;
+    private static final int Y_LEN = 100;
+    private static final int X_LEN = 100;
+    private static final int DIR_LEN = 4;
+    private static final int[] DIR_Y = {-1, 0, 1, 0};
+    private static final int[] DIR_X = {0, 1, 0, -1};
+    
+    private static int[][] map;
+    private static Node start;
 
-public class Solution {
-    static StringBuilder sb = new StringBuilder();
-    static int startY;
-    static int startX;
-    static int[][] map = new int[100][100];
-    static boolean[][] visited;
-    static int[] dirY = {-1, 0, 1, 0};
-    static int[] dirX = {0, 1, 0, -1};
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        for (int tc = 1; tc <= 10; tc++) {
-            int t = Integer.parseInt(br.readLine());
-            sb.append("#").append(t).append(" ");
-            
-            visited = new boolean[100][100];
-
-            for (int y = 0; y < 100; y++) {
-                String line = br.readLine();
-
-                for (int x = 0; x < 100; x++) {
-                    int n = line.charAt(x) - '0'; 
-
-                    map[y][x] = n;
-                    if (n == 2) {
-                        startY = y;
-                        startX = x;
-                    }
-                }
-            }
-            sb.append(bfs()).append("\n");
-        }
-        System.out.println(sb);
-    }
-
-    static int bfs() {
-        Queue<Node> queue = new LinkedList<> ();
-        queue.offer(new Node(startY, startX));
-        visited[startY][startX] = true;
-        
-        while (!queue.isEmpty()) {
-            Node node = queue.poll();
-            int y = node.y;
-            int x = node.x;
-
-            for (int i = 0; i < 4; i++) {
-                int nextY = y + dirY[i];
-                int nextX = x + dirX[i];
-                if (nextY < 0 || nextY >= 100 || nextX < 0 || nextX >= 100 || visited[nextY][nextX] || map[nextY][nextX] == 1) continue;
-                queue.offer(new Node(nextY, nextX));
-                visited[nextY][nextX] = true;
-                if (map[nextY][nextX] == 3) return 1;
-            }
-        }
-
-        return 0;
-    }
-
-    static class Node {
+    private static class Node {
         int y;
         int x;
-
+        
         public Node(int y, int x) {
             this.y = y;
             this.x = x;
         }
+    }
+    
+	public static void main(String args[]) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+
+		for(int t = 1; t <= T; t++) {
+            int caseNum = Integer.parseInt(br.readLine());
+            int answer = 0;
+            map = new int[Y_LEN][X_LEN];
+            
+            for (int y = 0; y < Y_LEN; y++ ) {
+                String input = br.readLine();
+                for (int x = 0; x < X_LEN; x++) {
+                    map[y][x] = input.charAt(x) - '0';
+                    if (map[y][x] == 2) start = new Node(y, x);
+                }
+            }
+            
+            answer = bfs();
+            
+            sb.append("#" + caseNum + " " + answer + "\n");
+		}
+        
+        System.out.print(sb.toString());
+	}
+    
+    private static int bfs() {
+        boolean[][] visited = new boolean[Y_LEN][X_LEN];
+        visited[start.y][start.x] = true;
+        ArrayDeque<Node> que = new ArrayDeque<> ();
+        que.offer(start);
+        
+        while (!que.isEmpty()) {
+            Node node = que.poll();
+            
+            for (int d = 0; d < DIR_LEN; d++) {
+                int nextY = node.y + DIR_Y[d];
+                int nextX = node.x + DIR_X[d];
+
+                if (visited[nextY][nextX]) continue;
+                if (nextY < 0 || nextY >= Y_LEN || nextX < 0 || nextY >= X_LEN) continue;
+                if (map[nextY][nextX] == 1) continue;
+                if (map[nextY][nextX] == 3) return 1;
+                
+                visited[nextY][nextX] = true;
+                que.offer(new Node(nextY, nextX));
+            }
+        }
+        return 0;
     }
 }
