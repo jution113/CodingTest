@@ -16,7 +16,7 @@ class Solution {
             initBannedSrcCombs();
             
             combCnt = 1;
-            makeComb(1, new HashSet<> ());
+            makeComb(1, 0);
             sb.append("#" + t + " " + combCnt + "\n");
 		}
         System.out.print(sb.toString());
@@ -40,21 +40,19 @@ class Solution {
         }        
     }
     
-    private static void makeComb(int start, HashSet<Integer> comb) {
+    private static void makeComb(int start, int mask) {
         if (start > n) return;
         
         for (int i = start; i <= n; i++) {
-            if (!validateComb(i, comb)) continue;
-            comb.add(i);
+            if (!validateComb(i, mask)) continue;
             combCnt++;
-            makeComb(i + 1, comb);
-            comb.remove(i);
+            makeComb(i + 1, 1 << i | mask);
         }
     }
     
-    private static boolean validateComb(int src, HashSet<Integer> comb) {
-        if (comb.isEmpty() || !bannedSrcCombsBySrc.containsKey(src)) return true;
-        for (int bannedSrc : bannedSrcCombsBySrc.get(src)) if (comb.contains(bannedSrc)) return false;
+    private static boolean validateComb(int src, int mask) {
+        if (!bannedSrcCombsBySrc.containsKey(src)) return true;
+        for (int bannedSrc : bannedSrcCombsBySrc.get(src)) if ((1 << bannedSrc & mask) != 0) return false;
         return true;
     }
 }
