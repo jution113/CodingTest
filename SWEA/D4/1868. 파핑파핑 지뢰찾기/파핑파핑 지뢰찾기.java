@@ -22,8 +22,8 @@ class Solution {
         
 		for(int testCase = 1; testCase <= totalTestCase; testCase++) {
             init();
-            findMinClickCnt();
-            
+            clickSafeTile();
+            clickRemainTile();
             sb.append("#" + testCase + " " +  clickCnt + "\n");
 		}
         
@@ -41,16 +41,23 @@ class Solution {
         clickCnt = 0;
     }
     
-    private static void findMinClickCnt() {
+    private static void clickSafeTile() {
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                if (isMine(y, x) || isClicked(y, x) || getAroundMineCnt(y, x) != 0) continue;
+                clickCnt++;
+                click(y, x);
+            }
+        }
+    }
+    
+    private static void clickRemainTile() {
         for (int y = 0; y < n; y++) {
             for (int x = 0; x < n; x++) {
                 if (isMine(y, x) || isClicked(y, x)) continue;
                 clickCnt++;
-                click(y, x);
-        		// System.out.println("y, x: " + y + " " + x);
             }
         }
-        // System.out.println("----- ----- -----");
     }
     
     private static void click(int y, int x) {
@@ -64,9 +71,8 @@ class Solution {
             if (isMine(nextY, nextX)) continue;
             if (isClicked(nextY, nextX)) continue;
             
-            int aroundMineCnt = getAroundMineCnt(nextY, nextX);
-            if (map[y][x] == 0) map[nextY][nextX]  = aroundMineCnt;
-            if (aroundMineCnt == 0) click(nextY, nextX);
+            map[nextY][nextX] = getAroundMineCnt(nextY, nextX);
+            if (map[nextY][nextX] == 0) click(nextY, nextX);
         }
     }
     
