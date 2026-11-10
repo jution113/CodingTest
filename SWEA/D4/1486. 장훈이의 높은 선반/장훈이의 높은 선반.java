@@ -18,7 +18,7 @@ class Solution {
         
 		for(int testCase = 1; testCase <= totalTest; testCase++) {
             init();
-            findMinGap();
+            findMinGap(new ArrayList<> (), 0, 0);
             sb.append("#" + testCase + " " + minGap + "\n");
 		}
         
@@ -37,23 +37,19 @@ class Solution {
         minGap = Integer.MAX_VALUE;
     }
     
-    private static void findMinGap() {
-        for (int i = 1; i <= n; i++) {
-            makeHeight(i, new ArrayList<> (), 0, 0);
-            if (minGap == 0) break;
-        }
-    }
-    
-    private static void makeHeight(int maxPick, ArrayList<Integer> picks, int height, int start) {
+    private static void findMinGap(ArrayList<Integer> picks, int height, int start) {
+        int gap =  height - targetHeight;
+        
+        if (gap > minGap) return;
         if (height >= targetHeight) {
-            minGap = Math.min(minGap, height - targetHeight);
+            minGap = Math.min(minGap, gap);
             return;
         }
-        if (picks.size() == maxPick) return;
+        if (picks.size() == n) return;
         
         for (int i = start; i < n; i++) {
             picks.add(heights[i]);
-            makeHeight(maxPick, picks, height + heights[i], i + 1);
+            findMinGap(picks, height + heights[i], i + 1);
             picks.remove(picks.size() - 1);
         }
     }
